@@ -35,6 +35,13 @@ func testAPIResponse(a *apiTest) {
 	defer server.Close()
 
 	v := reflect.ValueOf(hub)
+
+	// Simulate authentication before invoking target method
+	hub.client.authData.userName = "admin"
+	hub.client.authData.password = "admin"
+	hub.client.authData.sessionID = "987879"
+	hub.client.authData.nonce = "2355345"
+
 	apiMethod := v.MethodByName(a.method)
 	resp := apiMethod.Call(nil)
 

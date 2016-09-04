@@ -194,6 +194,11 @@ func newRequest(authData *authData, method string, xpath string) (req *request) 
 }
 
 func (r *request) send() (re *response, err error) {
+
+	if !r.authData.isAuthenticated() && !r.isLogin() {
+		return nil, errors.New("User not logged in")
+	}
+
 	j, err := json.Marshal(r)
 	if err != nil {
 		return nil, err
