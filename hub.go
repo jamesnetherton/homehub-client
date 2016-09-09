@@ -14,7 +14,7 @@ type Hub struct {
 
 // New creates a new Hub client for interacting with the router
 func New(URL string, username string, password string) *Hub {
-	c := newClient(URL+"/cgi/json-req", username, password)
+	c := newClient(URL+"/cgi/json-req", username, hexmd5(password))
 	log.SetPrefix("INFO: ")
 	log.SetFlags(log.LstdFlags)
 	log.SetOutput(ioutil.Discard)

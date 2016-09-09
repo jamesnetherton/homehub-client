@@ -174,9 +174,9 @@ func newRequest(authData *authData, method string, xpath string) (req *request) 
 
 	var ha1 string
 	if authData.nonce != "" {
-		ha1 = hexmd5(authData.userName + ":" + authData.nonce + ":" + hexmd5(authData.password))
+		ha1 = hexmd5(authData.userName + ":" + authData.nonce + ":" + authData.password)
 	} else {
-		ha1 = hexmd5(authData.userName + "::" + hexmd5(authData.password))
+		ha1 = hexmd5(authData.userName + "::" + authData.password)
 	}
 	authKey := hexmd5(ha1 + ":" + strconv.Itoa(authData.requestCount) + ":" + strconv.Itoa(cnonce) + ":JSON:/cgi/json-req")
 
@@ -226,8 +226,8 @@ func (r *request) send() (re *response, err error) {
 
 	if r.isLogin() {
 		sessionID, _ := strconv.Atoi(r.authData.sessionID)
-		authKey := hexmd5(r.authData.userName + ":" + r.authData.nonce + ":" + hexmd5(r.authData.password))
-		ha1 := authKey[:10] + hexmd5(r.authData.password) + authKey[10:len(authKey)]
+		authKey := hexmd5(r.authData.userName + ":" + r.authData.nonce + ":" + r.authData.password)
+		ha1 := authKey[:10] + r.authData.password + authKey[10:len(authKey)]
 
 		sessionData := &sessionData{
 			ID:        r.authData.requestCount,
