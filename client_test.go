@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -18,7 +19,14 @@ type apiTest struct {
 
 func mockAPIClientServer(apiStubResponse string) (*httptest.Server, *Hub) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		bytesRead, err := ioutil.ReadFile("testdata/" + apiStubResponse + "_response.json")
+		var stubDataFile string
+		if strings.HasSuffix(r.RequestURI, "/eventLog") {
+			stubDataFile = "testdata/eventLog.txt"
+		} else {
+			stubDataFile = "testdata/" + apiStubResponse + "_response.json"
+		}
+
+		bytesRead, err := ioutil.ReadFile(stubDataFile)
 		if err == nil {
 			fmt.Fprintln(w, string(bytesRead))
 		} else {
@@ -87,6 +95,10 @@ func TestDhcpSubnetMask(t *testing.T) {
 
 func TestDownstreamSyncSpeed(t *testing.T) {
 	testAPIResponse(&apiTest{"DownstreamSyncSpeed", "downstream_curr_rate", "97543", t})
+}
+
+func TestEventLog(t *testing.T) {
+	testAPIResponse(&apiTest{"EventLog", "event_log", "event 1\nevent 2\n\n", t})
 }
 
 func TestHardwareVersion(t *testing.T) {

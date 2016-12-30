@@ -10,6 +10,7 @@ import (
 // Hub represents a Home Hub client for interacting with the router
 type Hub struct {
 	client *client
+	URL    string
 }
 
 // New creates a new Hub client for interacting with the router
@@ -18,7 +19,7 @@ func New(URL string, username string, password string) *Hub {
 	log.SetPrefix("INFO: ")
 	log.SetFlags(log.LstdFlags)
 	log.SetOutput(ioutil.Discard)
-	return &Hub{c}
+	return &Hub{c, URL}
 }
 
 // BroadbandProductType returns the last used wan interface type. For BT this equates to the broadband product type
@@ -81,6 +82,18 @@ func (h *Hub) EnableDebug(enable bool) {
 	}
 }
 
+// EventLog returns the events that have taken place on the router since it was last reset
+func (h *Hub) EventLog() (result string, err error) {
+	eventLogRequest := newEventLogRequest(&h.client.authData)
+	req := newHubResourceRequest(&h.client.authData, h.URL, eventLogRequest)
+	resp, err := req.send()
+	if err != nil {
+		return "", err
+	}
+
+	return resp.body, nil
+}
+
 // HardwareVersion returns the router hardware version
 func (h *Hub) HardwareVersion() (result string, err error) {
 	return h.client.sendXPathRequest(mySagemcomBoxDeviceInfoHardwareVersion)
@@ -103,7 +116,7 @@ func (h *Hub) LocalTime() (result string, err error) {
 
 // Login authenticates a user
 func (h *Hub) Login() (success bool, err error) {
-	req := newRequest(&h.client.authData, "logIn", "")
+	req := newLoginRequest(&h.client.authData)
 	resp, err := req.send()
 
 	if err == nil {
