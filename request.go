@@ -53,7 +53,10 @@ type parameters struct {
 	Value          interface{}     `json:"value,omitempty"`
 	Capability     *capability     `json:"capability,omitempty"`
 	URI            string          `json:"uri,omitempty"`
+	Data           string          `json:"data,omitempty"`
 	FileName       string          `json:"FileName,omitempty"`
+	StartDate      string          `json:"startDate,omitempty"`
+	EndDate        string          `json:"endDate,omitempty"`
 }
 
 type interfaceOptions struct {

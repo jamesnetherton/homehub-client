@@ -26,12 +26,15 @@ func (r *hubResourceRequest) send() (re *response, err error) {
 		return nil, err
 	}
 
-	logPath := resp.ResponseBody.Reply.ResponseActions[0].ResponseCallbacks[0].Parameters.URI
-	sessionData := newSessionData(&r.authData)
+	filePath := resp.ResponseBody.Reply.ResponseActions[0].ResponseCallbacks[0].Parameters.URI
+	if filePath == "" {
+		filePath = resp.ResponseBody.Reply.ResponseActions[0].ResponseCallbacks[0].Parameters.Data
+	}
 
+	sessionData := newSessionData(&r.authData)
 	cj, _ := json.Marshal(sessionData)
 
-	httpRequest, _ := http.NewRequest("GET", r.URL+"/"+logPath, nil)
+	httpRequest, _ := http.NewRequest("GET", r.URL+"/"+filePath, nil)
 	httpRequest.Header.Set("Accept", "application/json, text/plain, */*")
 	httpRequest.Header.Set("Accept-Encoding", "gzip, deflate")
 	httpRequest.Header.Set("Accept-Language", "en-GB,en-US;q=0.8,en;q=0.6")

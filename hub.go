@@ -22,6 +22,18 @@ func New(URL string, username string, password string) *Hub {
 	return &Hub{c, URL}
 }
 
+// BandwidthMonitor returns bandwidth statistics for devices that have connected to the router
+func (h *Hub) BandwidthMonitor() (result string, err error) {
+	bandwidthMonitorRequest := newBandwidthMonitorRequest(&h.client.authData)
+	req := newHubResourceRequest(&h.client.authData, h.URL, bandwidthMonitorRequest)
+	resp, err := req.send()
+	if err != nil {
+		return "", err
+	}
+
+	return resp.body, nil
+}
+
 // BroadbandProductType returns the last used wan interface type. For BT this equates to the broadband product type
 func (h *Hub) BroadbandProductType() (result string, err error) {
 	i, err := h.client.sendXPathRequest(mySagemcomBoxDeviceInfoInterfaceType)

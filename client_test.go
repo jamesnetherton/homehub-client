@@ -22,6 +22,8 @@ func mockAPIClientServer(apiStubResponse string) (*httptest.Server, *Hub) {
 		var stubDataFile string
 		if strings.HasSuffix(r.RequestURI, "/eventLog") {
 			stubDataFile = "testdata/eventLog.txt"
+		} else if strings.HasSuffix(r.RequestURI, "/stats.csv") {
+			stubDataFile = "testdata/stats.csv"
 		} else {
 			stubDataFile = "testdata/" + apiStubResponse + "_response.json"
 		}
@@ -63,6 +65,10 @@ func testAPIResponse(a *apiTest) {
 	if result != a.expectedResult {
 		a.t.Fatalf("API method %s returned '%s'. Expected '%s'", a.method, result, a.expectedResult)
 	}
+}
+
+func TestBandwidthMonitor(t *testing.T) {
+	testAPIResponse(&apiTest{"BandwidthMonitor", "bandwidth_monitor", "a0:b1:c2:d3:e4:f5,2016-12-31,10959,1301\na1:b9:c8:d7:e6:f5,2016-12-31,218,30\n\n", t})
 }
 
 func TestBroadbandProductType(t *testing.T) {

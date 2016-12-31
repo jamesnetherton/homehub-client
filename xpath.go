@@ -342,3 +342,4 @@ const forbiddenIpsIpsQuantennaBootIPRemote string = "Device/WiFi/Quantenna/BootI
 const gatewayConnectionStatusLocalipnetworkIpv4address string = "Device/Managers/NetworkData/IpLan"
 const gatewayConnectionStatusLocalipnetworkSubnetmask string = "Device/Managers/NetworkData/NetmaskLan"
 const device string = "Device"
+const bandwidthMonitoring string = "Device/Services/BandwidthMonitoring"
