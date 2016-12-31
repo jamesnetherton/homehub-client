@@ -61,10 +61,13 @@ func (r *response) getValue() string {
 		if params.Capability == nil {
 			value = vo.String()
 		} else {
+			capType := params.Capability.Type
 			switch {
-			case strings.Contains(params.Capability.Type, "uint32"):
+			case strings.Contains(capType, "xmo:uint32"):
 				value = strconv.FormatFloat(vo.Float(), 'f', -1, 64)
 				break
+			case strings.Contains(capType, "xmo:boolean"):
+				value = strconv.FormatBool(vo.Bool())
 			default:
 				value = vo.String()
 			}

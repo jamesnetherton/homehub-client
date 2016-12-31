@@ -13,7 +13,7 @@ func newEventLogRequest(authData *authData) (req *eventLogRequest) {
 
 	a := action{
 		ID:         0,
-		Method:     "getVendorLogDownloadURI",
+		Method:     methodVendorLogDownload,
 		XPath:      eventLog,
 		Parameters: params,
 	}

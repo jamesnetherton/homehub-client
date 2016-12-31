@@ -4,27 +4,35 @@ type xpathRequest struct {
 	genericRequest
 }
 
-func newXPathRequest(authData *authData, xpath string) (req *xpathRequest) {
+func newXPathRequest(authData *authData, xpath string, method string, value interface{}) (req *xpathRequest) {
+	var (
+		caps    *capabilityFlags
+		options *interfaceOptions
+		params  *parameters
+	)
+
 	authData.requestCount++
 
-	method := "getValue"
-	if xpath == "Device" {
-		method = "reboot"
-	}
+	if method == methodGetValue {
+		caps = &capabilityFlags{
+			Interface: true,
+		}
 
-	capabilityFlags := &capabilityFlags{
-		Interface: true,
-	}
-
-	interfaceOptions := &interfaceOptions{
-		CapabilityFlags: *capabilityFlags,
+		options = &interfaceOptions{
+			CapabilityFlags: *caps,
+		}
+	} else {
+		params = &parameters{
+			Value: value,
+		}
 	}
 
 	a := action{
 		ID:               0,
 		Method:           method,
 		XPath:            xpath,
-		InterfaceOptions: interfaceOptions,
+		InterfaceOptions: options,
+		Parameters:       params,
 	}
 
 	var actions []action

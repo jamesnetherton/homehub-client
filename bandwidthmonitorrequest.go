@@ -22,7 +22,7 @@ func newBandwidthMonitorRequest(authData *authData) (req *eventLogRequest) {
 
 	a := action{
 		ID:         0,
-		Method:     "uploadBMStatisticsFile",
+		Method:     methodUploadStatistics,
 		XPath:      bandwidthMonitoring,
 		Parameters: params,
 	}

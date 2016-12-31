@@ -52,7 +52,7 @@ func newLoginRequest(authData *authData) (req *loginRequest) {
 
 	a := action{
 		ID:         0,
-		Method:     "logIn",
+		Method:     methodLogin,
 		Parameters: parameters,
 	}
 

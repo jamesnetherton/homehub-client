@@ -87,6 +87,10 @@ func TestDataSent(t *testing.T) {
 	testAPIResponse(&apiTest{"DataSent", "data_sent", "11223344", t})
 }
 
+func TestDhcpAuthoritative(t *testing.T) {
+	testAPIResponse(&apiTest{"DhcpAuthoritative", "dhcp_authoritative", "true", t})
+}
+
 func TestDhcpPoolStart(t *testing.T) {
 	testAPIResponse(&apiTest{"DhcpPoolStart", "dhcp_ipv4_pool_start", "192.168.1.64", t})
 }

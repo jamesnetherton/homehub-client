@@ -13,8 +13,8 @@ func newClient(URL string, username string, password string) *client {
 	return &client{a}
 }
 
-func (c *client) sendXPathRequest(xpath string) (result string, err error) {
-	req := newXPathRequest(&c.authData, xpath)
+func (c *client) getXPathValue(xpath string) (result string, err error) {
+	req := newXPathRequest(&c.authData, xpath, methodGetValue, nil)
 	resp, err := req.send()
 
 	if err == nil {
@@ -22,4 +22,10 @@ func (c *client) sendXPathRequest(xpath string) (result string, err error) {
 	}
 
 	return "", err
+}
+
+func (c *client) setXPathValue(xpath string, value interface{}) (err error) {
+	req := newXPathRequest(&c.authData, xpath, methodSetValue, value)
+	_, err = req.send()
+	return err
 }
