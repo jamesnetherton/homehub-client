@@ -119,6 +119,10 @@ func TestInternetConnectionStatus(t *testing.T) {
 	testAPIResponse(&apiTest{"InternetConnectionStatus", "wan_internet_status", "UP", t})
 }
 
+func TestLightBrightness(t *testing.T) {
+	testAPIResponse(&apiTest{"LightBrightness", "light_brightness", "50", t})
+}
+
 func TestLightStatus(t *testing.T) {
 	testAPIResponse(&apiTest{"LightStatus", "hub_light_status", "OFF", t})
 }

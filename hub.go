@@ -126,6 +126,25 @@ func (h *Hub) InternetConnectionStatus() (result string, err error) {
 	return h.client.getXPathValue(mySagemcomBoxDeviceInfoWanInternetStatus)
 }
 
+// LightBrightness returns the router LED brightness percentage
+func (h *Hub) LightBrightness() (result string, err error) {
+	return h.client.getXPathValue(mySagemcomBoxDeviceInfoHubLightBrightness)
+}
+
+// LightBrightnessSet sets the router LED brightness percentage
+func (h *Hub) LightBrightnessSet(brightness int) (err error) {
+	return h.client.setXPathValue(mySagemcomBoxDeviceInfoHubLightBrightness, brightness)
+}
+
+// LightEnable toggles the status of the router LED lights
+func (h *Hub) LightEnable(enable bool) (err error) {
+	status := "ON"
+	if enable == false {
+		status = "OFF"
+	}
+	return h.client.setXPathValue(mySagemcomBoxDeviceInfoHubLightStatus, status)
+}
+
 // LightStatus returns the router LED light satus
 func (h *Hub) LightStatus() (result string, err error) {
 	return h.client.getXPathValue(mySagemcomBoxDeviceInfoHubLightStatus)
