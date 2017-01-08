@@ -104,12 +104,13 @@ func TestBroadbandProductType(t *testing.T) {
 
 func TestConnectedDevices(t *testing.T) {
 	var buffer bytes.Buffer
-	buffer.WriteString("\n=======================================================\n")
-	buffer.WriteString("IP Address          Physical Address         Type   \n")
-	buffer.WriteString("----------          ----------------         ----   \n")
-	buffer.WriteString("192.168.1.65        38:FD:3B:40:77:5E        Ethernet\n")
-	buffer.WriteString("192.168.1.66        38:FD:3B:40:77:5F        Ethernet\n")
-	buffer.WriteString("=======================================================\n")
+
+	buffer.WriteString("\n")
+	buffer.WriteString("--   ----------          ----------------         ----   \n")
+	buffer.WriteString("ID   IP Address          Physical Address         Type   \n")
+	buffer.WriteString("--   ----------          ----------------         ----   \n")
+	buffer.WriteString("2    192.168.1.65        38:FD:3B:40:77:5E        Ethernet\n")
+	buffer.WriteString("3    192.168.1.66        38:FD:3B:40:77:5F        Ethernet\n")
 
 	testAPIResponse(&apiTest{
 		method:          "ConnectedDevices",
@@ -142,6 +143,24 @@ func TestDataSent(t *testing.T) {
 		method:          "DataSent",
 		apiStubResponse: "data_sent",
 		expectedResult:  "11223344",
+		t:               t,
+	})
+}
+
+func TestDeviceInfo(t *testing.T) {
+
+	var buffer bytes.Buffer
+	buffer.WriteString("\n")
+	buffer.WriteString("--   ----------          ----------------         ----   \n")
+	buffer.WriteString("ID   IP Address          Physical Address         Type   \n")
+	buffer.WriteString("--   ----------          ----------------         ----   \n")
+	buffer.WriteString("2    192.168.1.65        38:FD:3B:40:77:5E        Ethernet\n")
+
+	testAPIResponse(&apiTest{
+		method:          "DeviceInfo",
+		methodArgs:      []interface{}{1},
+		apiStubResponse: "device_info",
+		expectedResult:  buffer.String(),
 		t:               t,
 	})
 }

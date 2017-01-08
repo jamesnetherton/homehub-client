@@ -99,3 +99,18 @@ func (r *response) getValues(xpath string) [][]value {
 
 	return res
 }
+
+func (r *response) getHost() *host {
+	var h *host
+
+	if r.ResponseBody.Reply != nil {
+		params := r.ResponseBody.Reply.ResponseActions[0].ResponseCallbacks[0].Parameters
+		if strings.HasPrefix(fmt.Sprintf("%s", params.Value), "map[Host") {
+			h = &host{}
+			x, _ := json.Marshal(params.Value)
+			json.Unmarshal(x, h)
+		}
+	}
+
+	return h
+}

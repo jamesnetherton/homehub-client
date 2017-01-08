@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"strings"
 )
 
 // Hub represents a Home Hub client for interacting with the router
@@ -61,22 +62,24 @@ func (h *Hub) ConnectedDevices() (result string, err error) {
 	}
 
 	var buffer bytes.Buffer
-	formatPattern := "%-20s%-25s%-7s\n"
+	headerPattern := "%-5s%-20s%-25s%-7s\n"
+	dataPattern := "%-5d%-20s%-25s%-7s\n"
 
 	for _, value := range values {
-		buffer.WriteString("\n=======================================================\n")
-		buffer.WriteString(fmt.Sprintf(formatPattern, "IP Address", "Physical Address", "Type"))
-		buffer.WriteString(fmt.Sprintf(formatPattern, "----------", "----------------", "----"))
+		buffer.WriteString("\n")
+		buffer.WriteString(fmt.Sprintf(headerPattern, "--", "----------", "----------------", "----"))
+		buffer.WriteString(fmt.Sprintf(headerPattern, "ID", "IP Address", "Physical Address", "Type"))
+		buffer.WriteString(fmt.Sprintf(headerPattern, "--", "----------", "----------------", "----"))
 		for _, device := range value {
 			if device.InterfaceType == "WiFi" || device.InterfaceType == "Ethernet" {
-				buffer.WriteString(fmt.Sprintf(formatPattern,
+				buffer.WriteString(fmt.Sprintf(dataPattern,
+					device.UID,
 					device.IPAddress,
 					device.PhysicalAddress,
 					device.InterfaceType,
 				))
 			}
 		}
-		buffer.WriteString("=======================================================\n")
 	}
 
 	return buffer.String(), err
@@ -95,6 +98,32 @@ func (h *Hub) DataReceived() (result string, err error) {
 // DataSent returns the total data bytes sent
 func (h *Hub) DataSent() (result string, err error) {
 	return h.client.getXPathValue(mySagemcomBoxBasicStatusDataUsageSent)
+}
+
+// DeviceInfo returns infomation about a device matching the specified id
+func (h *Hub) DeviceInfo(id int) (result string, err error) {
+	host, err := h.client.getXPathHostValue(strings.Replace(ethernetDeviceDevicesList, "#", strconv.Itoa(id), 0))
+
+	if err != nil {
+		return "", nil
+	}
+
+	var buffer bytes.Buffer
+	headerPattern := "%-5s%-20s%-25s%-7s\n"
+	dataPattern := "%-5d%-20s%-25s%-7s\n"
+
+	buffer.WriteString("\n")
+	buffer.WriteString(fmt.Sprintf(headerPattern, "--", "----------", "----------------", "----"))
+	buffer.WriteString(fmt.Sprintf(headerPattern, "ID", "IP Address", "Physical Address", "Type"))
+	buffer.WriteString(fmt.Sprintf(headerPattern, "--", "----------", "----------------", "----"))
+	buffer.WriteString(fmt.Sprintf(dataPattern,
+		host.UID,
+		host.IPAddress,
+		host.PhysicalAddress,
+		host.InterfaceType,
+	))
+
+	return buffer.String(), nil
 }
 
 // DhcpAuthoritative returns whether the hub is the authoritive DHCP server

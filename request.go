@@ -90,6 +90,10 @@ type value struct {
 	ConnectionsAtLastReboot        int              `json:"ConnectionsNbreAtLastReboot,omitempty"`
 }
 
+type host struct {
+	value `json:"Host,omitempty"`
+}
+
 type ipAddress struct {
 	UID       int    `json:"uid,omitempty"`
 	IPAddress string `json:"IPAddress,omitempty"`
