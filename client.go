@@ -24,6 +24,17 @@ func (c *client) getXPathValue(xpath string) (result string, err error) {
 	return "", err
 }
 
+func (c *client) getXPathValues(xpath string) (values [][]value, err error) {
+	req := newXPathRequest(&c.authData, xpath, methodGetValue, nil)
+	resp, err := req.send()
+
+	if err == nil {
+		return resp.getValues(xpath), nil
+	}
+
+	return nil, err
+}
+
 func (c *client) setXPathValue(xpath string, value interface{}) (err error) {
 	req := newXPathRequest(&c.authData, xpath, methodSetValue, value)
 	_, err = req.send()

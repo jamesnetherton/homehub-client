@@ -1,6 +1,8 @@
 package homehub
 
 import (
+	"bytes"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -48,6 +50,36 @@ func (h *Hub) BroadbandProductType() (result string, err error) {
 		return "BT Infinity", nil
 	}
 	return "BT Broadband", nil
+}
+
+// ConnectedDevices returns information about any devices connected to the router
+func (h *Hub) ConnectedDevices() (result string, err error) {
+	values, err := h.client.getXPathValues(mainCacheableHosts)
+
+	if err != nil {
+		return "", err
+	}
+
+	var buffer bytes.Buffer
+	formatPattern := "%-20s%-25s%-7s\n"
+
+	for _, value := range values {
+		buffer.WriteString("\n=======================================================\n")
+		buffer.WriteString(fmt.Sprintf(formatPattern, "IP Address", "Physical Address", "Type"))
+		buffer.WriteString(fmt.Sprintf(formatPattern, "----------", "----------------", "----"))
+		for _, device := range value {
+			if device.InterfaceType == "WiFi" || device.InterfaceType == "Ethernet" {
+				buffer.WriteString(fmt.Sprintf(formatPattern,
+					device.IPAddress,
+					device.PhysicalAddress,
+					device.InterfaceType,
+				))
+			}
+		}
+		buffer.WriteString("=======================================================\n")
+	}
+
+	return buffer.String(), err
 }
 
 // DataPumpVersion returns the DSL line firmware version

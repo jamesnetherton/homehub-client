@@ -1,6 +1,7 @@
 package homehub
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -97,6 +98,23 @@ func TestBroadbandProductType(t *testing.T) {
 		method:          "BroadbandProductType",
 		apiStubResponse: "interface_type",
 		expectedResult:  "BT Infinity",
+		t:               t,
+	})
+}
+
+func TestConnectedDevices(t *testing.T) {
+	var buffer bytes.Buffer
+	buffer.WriteString("\n=======================================================\n")
+	buffer.WriteString("IP Address          Physical Address         Type   \n")
+	buffer.WriteString("----------          ----------------         ----   \n")
+	buffer.WriteString("192.168.1.65        38:FD:3B:40:77:5E        Ethernet\n")
+	buffer.WriteString("192.168.1.66        38:FD:3B:40:77:5F        Ethernet\n")
+	buffer.WriteString("=======================================================\n")
+
+	testAPIResponse(&apiTest{
+		method:          "ConnectedDevices",
+		apiStubResponse: "connected_devices",
+		expectedResult:  buffer.String(),
 		t:               t,
 	})
 }

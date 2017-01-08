@@ -1,6 +1,8 @@
 package homehub
 
 import (
+	"encoding/json"
+	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
@@ -75,4 +77,25 @@ func (r *response) getValue() string {
 	}
 
 	return value
+}
+
+func (r *response) getValues(xpath string) [][]value {
+	var res [][]value
+
+	if r.ResponseBody.Reply != nil {
+		for _, action := range r.ResponseBody.Reply.ResponseActions {
+			c := action.ResponseCallbacks[0]
+			if c.XPath == xpath {
+				p := c.Parameters
+				if strings.HasPrefix(fmt.Sprintf("%s", p.Value), "[") {
+					v := &[]value{}
+					x, _ := json.Marshal(p.Value)
+					json.Unmarshal(x, v)
+					res = append(res, *v)
+				}
+			}
+		}
+	}
+
+	return res
 }
