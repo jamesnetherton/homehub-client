@@ -217,6 +217,15 @@ func TestLightBrightnessSet(t *testing.T) {
 	})
 }
 
+func TestLightEnable(t *testing.T) {
+	testAPIResponse(&apiTest{
+		method:          "LightEnable",
+		methodArgs:      []interface{}{true},
+		apiStubResponse: "hub_light_enable",
+		t:               t,
+	})
+}
+
 func TestLightStatus(t *testing.T) {
 	testAPIResponse(&apiTest{
 		method:          "LightStatus",
