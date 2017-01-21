@@ -74,8 +74,10 @@ func testAPIResponse(a *apiTest) {
 	}
 
 	if len(resp) > 1 {
-		if !resp[1].IsNil() && a.method != "Reboot" {
-			a.t.Fatalf("API method %s failed", a.method)
+		if !resp[1].IsNil() {
+			if resp[1].Type().String() == "error" {
+				result = fmt.Sprintf("%s", resp[1].Interface())
+			}
 		}
 	}
 
@@ -355,6 +357,15 @@ func TestSerialNumber(t *testing.T) {
 		method:          "SerialNumber",
 		apiStubResponse: "serial_number",
 		expectedResult:  "+123456+NQ98765432",
+		t:               t,
+	})
+}
+
+func TestSessionExpired(t *testing.T) {
+	testAPIResponse(&apiTest{
+		method:          "SerialNumber",
+		apiStubResponse: "session_expired",
+		expectedResult:  "Invalid user session",
 		t:               t,
 	})
 }

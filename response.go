@@ -65,11 +65,15 @@ func (r *response) getValue() string {
 		} else {
 			capType := params.Capability.Type
 			switch {
+			case strings.Contains(capType, "deviceconfig:LastSuccesfulWanType"):
+				value = vo.String()
+				break
 			case strings.Contains(capType, "int32"):
 				value = strconv.FormatFloat(vo.Float(), 'f', -1, 64)
 				break
 			case strings.Contains(capType, "boolean"):
 				value = strconv.FormatBool(vo.Bool())
+				break
 			default:
 				value = vo.String()
 			}
