@@ -68,6 +68,9 @@ func (r *response) getValue() string {
 			case strings.Contains(capType, "deviceconfig:LastSuccesfulWanType"):
 				value = vo.String()
 				break
+			case strings.Contains(capType, "managers:LedEnable"):
+				value = vo.String()
+				break
 			case strings.Contains(capType, "int32"):
 				value = strconv.FormatFloat(vo.Float(), 'f', -1, 64)
 				break

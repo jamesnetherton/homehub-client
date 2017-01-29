@@ -27,14 +27,7 @@ func New(URL string, username string, password string) *Hub {
 
 // BandwidthMonitor returns bandwidth statistics for devices that have connected to the router
 func (h *Hub) BandwidthMonitor() (result string, err error) {
-	bandwidthMonitorRequest := newBandwidthMonitorRequest(&h.client.authData)
-	req := newHubResourceRequest(&h.client.authData, h.URL, bandwidthMonitorRequest)
-	resp, err := req.send()
-	if err != nil {
-		return "", err
-	}
-
-	return resp.body, nil
+	return h.client.getBandwidthUsage()
 }
 
 // BroadbandProductType returns the last used wan interface type. For BT this equates to the broadband product type
@@ -167,14 +160,7 @@ func (h *Hub) EnableDhcpAuthoritative(enable bool) (err error) {
 
 // EventLog returns the events that have taken place on the router since it was last reset
 func (h *Hub) EventLog() (result string, err error) {
-	eventLogRequest := newEventLogRequest(&h.client.authData)
-	req := newHubResourceRequest(&h.client.authData, h.URL, eventLogRequest)
-	resp, err := req.send()
-	if err != nil {
-		return "", err
-	}
-
-	return resp.body, nil
+	return h.client.getEventLog()
 }
 
 // HardwareVersion returns the router hardware version
@@ -246,9 +232,9 @@ func (h *Hub) PublicSubnetMask() (result string, err error) {
 }
 
 // Reboot restarts router serial number
-func (h *Hub) Reboot() (result string, err error) {
+func (h *Hub) Reboot() (err error) {
 	// TODO: Figure out why the response is HTTP 500 and why there is a delay till the router reboots
-	return h.client.getXPathValue("Device")
+	return h.client.doReboot()
 }
 
 // SambaIP returns the samba share IP address

@@ -57,6 +57,7 @@ type parameters struct {
 	FileName       string          `json:"FileName,omitempty"`
 	StartDate      string          `json:"startDate,omitempty"`
 	EndDate        string          `json:"endDate,omitempty"`
+	Source         string          `json:"source,omitempty"`
 }
 
 type value struct {

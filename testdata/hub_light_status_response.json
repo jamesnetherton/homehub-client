@@ -1,7 +1,7 @@
 {
   "reply": {
     "uid": 0,
-    "id": 29,
+    "id": 1,
     "error": {
       "code": 16777216,
       "description": "Ok"
@@ -23,23 +23,37 @@
             },
             "xpath": "Device/Managers/HubLightControl/LedEnable",
             "parameters": {
-              "session-options": {
-                "nss": null,
-                "language": "",
-                "context-flags": {
-                  "get-content-name": false,
-                  "local-time": false
+              "value": "OFF",
+              "capability": {
+                "name": "LedEnable",
+                "description": "",
+                "type": "managers:LedEnable xmo:int32 xmo:number xmo:value",
+                "flags": {
+                  "value": true,
+                  "config": true,
+                  "xml-child": true
                 },
-                "capability-flags": {},
-                "capability-depth": 0,
-                "time-format": ""
-              },
-              "value": "OFF"
+                "default-value": "ON",
+                "restrictions": {
+                  "enum-values": [
+                    {
+                      "name": "ON",
+                      "value": "0",
+                      "description": ""
+                    },
+                    {
+                      "name": "OFF",
+                      "value": "1",
+                      "description": ""
+                    }
+                  ]
+                }
+              }
             }
           }
-        ],
-        "events": null
+        ]
       }
-    ]
+    ],
+    "events": []
   }
 }
