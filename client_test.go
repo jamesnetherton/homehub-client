@@ -2,11 +2,14 @@ package homehub
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"reflect"
+	"regexp"
 	"strings"
 	"testing"
 )
@@ -19,26 +22,113 @@ type apiTest struct {
 	t               *testing.T
 }
 
-func mockAPIClientServer(apiStubResponse string) (*httptest.Server, *Hub) {
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		var stubDataFile string
-		if strings.HasSuffix(r.RequestURI, "/eventLog") {
-			stubDataFile = "testdata/eventLog.txt"
-		} else if strings.HasSuffix(r.RequestURI, "/stats.csv") {
-			stubDataFile = "testdata/stats.csv"
-		} else {
-			stubDataFile = "testdata/" + apiStubResponse + "_response.json"
-		}
+func getEnv(name string, defaultValue string) string {
+	value := os.Getenv(name)
+	if value == "" {
+		return defaultValue
+	}
+	return value
+}
 
-		bytesRead, err := ioutil.ReadFile(stubDataFile)
-		if err == nil {
-			fmt.Fprintln(w, string(bytesRead))
+func santizeString(target *string, regex string, replacement string) {
+	re := regexp.MustCompile(regex)
+	for _, match := range re.FindAllString(*target, -1) {
+		*target = strings.Replace(*target, match, replacement, -1)
+	}
+}
+
+func stubbedResponseHTTPHandler(apiStubResponse string, w http.ResponseWriter, r *http.Request) {
+	var stubDataFile string
+	if strings.HasSuffix(r.RequestURI, "/eventLog") {
+		stubDataFile = "testdata/eventLog.txt"
+	} else if strings.HasSuffix(r.RequestURI, "/stats.csv") {
+		stubDataFile = "testdata/stats.csv"
+	} else {
+		stubDataFile = "testdata/" + apiStubResponse + "_response.json"
+	}
+
+	bytesRead, err := ioutil.ReadFile(stubDataFile)
+	if err == nil {
+		fmt.Fprintln(w, string(bytesRead))
+	} else {
+		fmt.Fprintln(w, "{\"reply\": { \"uid\": 0 \"id\": 0 \"error\": \"code\": 99999999, \"description\": \"Error reading api stub response\" }}")
+	}
+}
+
+func proxiedResponseHTTPHandler(apiStubResponse string, url string, w http.ResponseWriter, r *http.Request) {
+	req, _ := http.NewRequest(r.Method, url+r.RequestURI, r.Body)
+	req.ContentLength = r.ContentLength
+	req.Form = r.Form
+	req.Header = r.Header
+
+	for _, cookie := range r.Cookies() {
+		req.AddCookie(cookie)
+	}
+
+	httpClient := &http.Client{}
+	httpResponse, err := httpClient.Do(req)
+	if err != nil {
+		fmt.Fprintln(w, "{\"reply\": { \"uid\": 0 \"id\": 0 \"error\": { \"code\": 99999999, \"description\": \"Error making proxied request\" }}}")
+		return
+	}
+
+	defer httpResponse.Body.Close()
+	bodyBytes, err := ioutil.ReadAll(httpResponse.Body)
+	if err != nil {
+		fmt.Fprintln(w, "{\"reply\": { \"uid\": 0 \"id\": 0 \"error\": { \"code\": 99999999, \"description\": \"Error reading proxied response\" }}}")
+		return
+	}
+
+	body := string(bodyBytes[:])
+
+	// Clean up MAC addresses
+	santizeString(&body, "\\b([0-9a-fA-F]{2}:??){5}([0-9a-fA-F]{2})\\b", "11:AA:2B:33:44:5C")
+	// Clean up IP addresses
+	santizeString(&body, "\\b((25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3})\\b", "192.168.1.68")
+
+	var dat map[string]interface{}
+	err = json.Unmarshal([]byte(body), &dat)
+	if err != nil {
+		fmt.Fprintln(w, "{\"reply\": { \"uid\": 0 \"id\": 0 \"error\": { \"code\": 99999999, \"description\": \"Error unmarshalling JSON response\" }}}")
+		return
+	}
+
+	json, err := json.MarshalIndent(dat, "", "  ")
+	if err != nil {
+		fmt.Fprintln(w, "{\"reply\": { \"uid\": 0 \"id\": 0 \"error\": { \"code\": 99999999, \"description\": \"Error marshalling JSON response\" }}}")
+		return
+	}
+
+	ioutil.WriteFile("testdata/"+apiStubResponse+"_response.json", json, 0644)
+	fmt.Fprintln(w, body)
+}
+
+func mockAPIClientServer(apiStubResponse string) (*httptest.Server, *Hub) {
+	defaultUsername := "admin"
+	defaultPassword := "passw0rd"
+	username := getEnv("HUB_USERNAME", defaultUsername)
+	password := getEnv("HUB_PASSWORD", defaultPassword)
+
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if username == defaultUsername && password == defaultPassword {
+			stubbedResponseHTTPHandler(apiStubResponse, w, r)
 		} else {
-			fmt.Fprintln(w, "{\"reply\": { \"uid\": 0 \"id\": 0 \"error\": \"code\": 99999999, \"description\": \"Error reading api stub response\" }}")
+			proxiedResponseHTTPHandler(apiStubResponse, os.Getenv("HUB_URL"), w, r)
 		}
 	}))
 
-	hub := New(server.URL, "admin", "passw0rd")
+	url := getEnv("HUB_URL", server.URL)
+	hub := New(server.URL, username, password)
+
+	if url != server.URL {
+		hub.Login()
+	} else {
+		hub.client.authData.userName = "admin"
+		hub.client.authData.password = "admin"
+		hub.client.authData.sessionID = "987879"
+		hub.client.authData.nonce = "2355345"
+	}
+
 	return server, hub
 }
 
@@ -47,12 +137,6 @@ func testAPIResponse(a *apiTest) {
 	defer server.Close()
 
 	v := reflect.TypeOf(hub)
-
-	// Simulate authentication before invoking target method
-	hub.client.authData.userName = "admin"
-	hub.client.authData.password = "admin"
-	hub.client.authData.sessionID = "987879"
-	hub.client.authData.nonce = "2355345"
 
 	apiMethod, _ := v.MethodByName(a.method)
 
