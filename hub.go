@@ -95,7 +95,7 @@ func (h *Hub) DataSent() (result string, err error) {
 
 // DeviceInfo returns infomation about a device matching the specified id
 func (h *Hub) DeviceInfo(id int) (result string, err error) {
-	host, err := h.client.getXPathHostValue(strings.Replace(ethernetDeviceDevicesList, "#", strconv.Itoa(id), 0))
+	host, err := h.client.getXPathHostValue(strings.Replace(ethernetDeviceDevicesList, "#", strconv.Itoa(id), 1))
 
 	if err != nil {
 		return "", nil

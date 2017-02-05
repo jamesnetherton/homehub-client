@@ -68,7 +68,13 @@ func (r *response) getValue() string {
 			case strings.Contains(capType, "deviceconfig:LastSuccesfulWanType"):
 				value = vo.String()
 				break
+			case strings.Contains(capType, "interface:Interface:Status"):
+				value = vo.String()
+				break
 			case strings.Contains(capType, "managers:LedEnable"):
+				value = vo.String()
+				break
+			case strings.Contains(capType, "Security:ModeEnabled"):
 				value = vo.String()
 				break
 			case strings.Contains(capType, "int32"):

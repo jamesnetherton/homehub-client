@@ -85,6 +85,10 @@ func proxiedResponseHTTPHandler(apiStubResponse string, url string, w http.Respo
 	santizeString(&body, "\\b([0-9a-fA-F]{2}:??){5}([0-9a-fA-F]{2})\\b", "11:AA:2B:33:44:5C")
 	// Clean up IP addresses
 	santizeString(&body, "\\b((25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)(\\.(25[0-5]|2[0-4]\\d|[0-1]?\\d?\\d)){3})\\b", "192.168.1.68")
+	// Clean up timestampts
+	santizeString(&body, "\\b([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})\\+([0-9]{4})\\b", "2016-08-30T19:48:55+0100")
+	// Clean up serial number
+	santizeString(&body, "\\b([0-9]{6})\\+([A-Z]{2})([0-9]{8})\\b", "123456+NQ98765432")
 
 	var dat map[string]interface{}
 	err = json.Unmarshal([]byte(body), &dat)
@@ -108,6 +112,7 @@ func mockAPIClientServer(apiStubResponse string) (*httptest.Server, *Hub) {
 	defaultPassword := "passw0rd"
 	username := getEnv("HUB_USERNAME", defaultUsername)
 	password := getEnv("HUB_PASSWORD", defaultPassword)
+	debug := getEnv("HUB_DEBUG", "false")
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if username == defaultUsername && password == defaultPassword {
@@ -119,6 +124,10 @@ func mockAPIClientServer(apiStubResponse string) (*httptest.Server, *Hub) {
 
 	url := getEnv("HUB_URL", server.URL)
 	hub := New(server.URL, username, password)
+
+	if debug == "true" {
+		hub.EnableDebug(true)
+	}
 
 	if url != server.URL {
 		hub.Login()
@@ -195,8 +204,8 @@ func TestConnectedDevices(t *testing.T) {
 	buffer.WriteString("--   ----------          ----------------         ----   \n")
 	buffer.WriteString("ID   IP Address          Physical Address         Type   \n")
 	buffer.WriteString("--   ----------          ----------------         ----   \n")
-	buffer.WriteString("2    192.168.1.65        38:FD:3B:40:77:5E        Ethernet\n")
-	buffer.WriteString("3    192.168.1.66        38:FD:3B:40:77:5F        Ethernet\n")
+	buffer.WriteString("2    192.168.1.68        11:AA:2B:33:44:5C        Ethernet\n")
+	buffer.WriteString("3    192.168.1.68        11:AA:2B:33:44:5C        Ethernet\n")
 
 	testAPIResponse(&apiTest{
 		method:          "ConnectedDevices",
@@ -240,11 +249,11 @@ func TestDeviceInfo(t *testing.T) {
 	buffer.WriteString("--   ----------          ----------------         ----   \n")
 	buffer.WriteString("ID   IP Address          Physical Address         Type   \n")
 	buffer.WriteString("--   ----------          ----------------         ----   \n")
-	buffer.WriteString("2    192.168.1.65        38:FD:3B:40:77:5E        Ethernet\n")
+	buffer.WriteString("2    192.168.1.68        11:AA:2B:33:44:5C        Ethernet\n")
 
 	testAPIResponse(&apiTest{
 		method:          "DeviceInfo",
-		methodArgs:      []interface{}{1},
+		methodArgs:      []interface{}{2},
 		apiStubResponse: "device_info",
 		expectedResult:  buffer.String(),
 		t:               t,
@@ -264,7 +273,7 @@ func TestDhcpPoolStart(t *testing.T) {
 	testAPIResponse(&apiTest{
 		method:          "DhcpPoolStart",
 		apiStubResponse: "dhcp_ipv4_pool_start",
-		expectedResult:  "192.168.1.64",
+		expectedResult:  "192.168.1.68",
 		t:               t})
 }
 
@@ -395,7 +404,7 @@ func TestPublicIPAddress(t *testing.T) {
 	testAPIResponse(&apiTest{
 		method:          "PublicIPAddress",
 		apiStubResponse: "public_ip4",
-		expectedResult:  "111.222.333.444",
+		expectedResult:  "192.168.1.68",
 		t:               t,
 	})
 }
@@ -410,12 +419,15 @@ func TestPublicSubnetMask(t *testing.T) {
 }
 
 func TestReboot(t *testing.T) {
-	testAPIResponse(&apiTest{
-		method:          "Reboot",
-		apiStubResponse: "reboot",
-		expectedResult:  "",
-		t:               t,
-	})
+	// If we're testing against the real router, we don't want to reboot it midway throuh the test suite!
+	if os.Getenv("HUB_USERNAME") != "" && os.Getenv("HUB_PASSWORD") != "" {
+		testAPIResponse(&apiTest{
+			method:          "Reboot",
+			apiStubResponse: "reboot",
+			expectedResult:  "",
+			t:               t,
+		})
+	}
 }
 
 func TestSambaHost(t *testing.T) {
@@ -431,7 +443,7 @@ func TestSambaIP(t *testing.T) {
 	testAPIResponse(&apiTest{
 		method:          "SambaIP",
 		apiStubResponse: "samba_ip",
-		expectedResult:  "192.168.1.254",
+		expectedResult:  "192.168.1.68",
 		t:               t,
 	})
 }
@@ -458,7 +470,7 @@ func TestSoftwareVersion(t *testing.T) {
 	testAPIResponse(&apiTest{
 		method:          "SoftwareVersion",
 		apiStubResponse: "software_version",
-		expectedResult:  "SG4B100021AA",
+		expectedResult:  "SG4B10002244",
 		t:               t,
 	})
 }
