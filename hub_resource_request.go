@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"strings"
 )
 
 type hubResourceRequest struct {
@@ -34,7 +35,8 @@ func (r *hubResourceRequest) send() (re *response, err error) {
 	sessionData := newSessionData(&r.authData)
 	cj, _ := json.Marshal(sessionData)
 
-	httpRequest, _ := http.NewRequest("GET", r.URL+"/"+filePath, nil)
+	baseURL := strings.Replace(r.URL, "/cgi/json-req", "", 1)
+	httpRequest, _ := http.NewRequest("GET", baseURL+"/"+filePath, nil)
 	httpRequest.Header.Set("Accept", "application/json, text/plain, */*")
 	httpRequest.Header.Set("Accept-Encoding", "gzip, deflate")
 	httpRequest.Header.Set("Accept-Language", "en-GB,en-US;q=0.8,en;q=0.6")
