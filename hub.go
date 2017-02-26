@@ -173,6 +173,11 @@ func (h *Hub) InternetConnectionStatus() (result string, err error) {
 	return h.client.getXPathValue(mySagemcomBoxDeviceInfoWanInternetStatus)
 }
 
+// IsLoggedIn returns the true or false depending on whether there is a valid user session
+func (h *Hub) IsLoggedIn() bool {
+	return h.client != nil && h.client.authData.isAuthenticated()
+}
+
 // LightBrightness returns the router LED brightness percentage
 func (h *Hub) LightBrightness() (result string, err error) {
 	return h.client.getXPathValue(mySagemcomBoxDeviceInfoHubLightBrightness)

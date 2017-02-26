@@ -51,7 +51,7 @@ func stubbedResponseHTTPHandler(apiStubResponse string, w http.ResponseWriter, r
 	if err == nil {
 		fmt.Fprintln(w, string(bytesRead))
 	} else {
-		fmt.Fprintln(w, "{\"reply\": { \"uid\": 0 \"id\": 0 \"error\": \"code\": 99999999, \"description\": \"Error reading api stub response\" }}")
+		fmt.Fprintln(w, "{\"reply\": { \"uid\": 0 \"id\": 0 \"error\": \"code\": 99999999, \"description\": \""+err.Error()+"\" }}")
 	}
 }
 
@@ -68,7 +68,7 @@ func proxiedResponseHTTPHandler(apiStubResponse string, url string, w http.Respo
 	httpClient := &http.Client{}
 	httpResponse, err := httpClient.Do(req)
 	if err != nil {
-		fmt.Fprintln(w, "{\"reply\": { \"uid\": 0 \"id\": 0 \"error\": { \"code\": 99999999, \"description\": \"Error making proxied request\" }}}")
+		fmt.Fprintln(w, "{\"reply\": { \"uid\": 0 \"id\": 0 \"error\": { \"code\": 99999999, \"description\": \""+err.Error()+"\" }}}")
 		return
 	}
 
@@ -329,6 +329,24 @@ func TestInternetConnectionStatus(t *testing.T) {
 		expectedResult:  "UP",
 		t:               t,
 	})
+}
+
+func TestIsLoggedInFalse(t *testing.T) {
+	hub := New("", "", "")
+
+	if hub.IsLoggedIn() {
+		t.Errorf("Expected IsLoggedIn to return false")
+	}
+}
+
+func TestIsLoggedInTrue(t *testing.T) {
+	server, hub := mockAPIClientServer("login")
+	defer server.Close()
+
+	hub.Login()
+	if !hub.IsLoggedIn() {
+		t.Errorf("Expected IsLoggedIn to return true")
+	}
 }
 
 func TestLightBrightness(t *testing.T) {
