@@ -1,7 +1,6 @@
 package homehub
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -18,7 +17,7 @@ type apiTest struct {
 	method          string
 	methodArgs      []interface{}
 	apiStubResponse string
-	expectedResult  string
+	expectedResult  interface{}
 	t               *testing.T
 }
 
@@ -156,10 +155,16 @@ func testAPIResponse(a *apiTest) {
 
 	inputs[0] = reflect.ValueOf(hub)
 	resp := apiMethod.Func.Call(inputs)
-	result := ""
+	var result interface{}
 
 	if resp[0].Type().String() == "string" {
 		result = resp[0].String()
+	} else if resp[0].Type().String() == "int" {
+		result = int(resp[0].Int())
+	} else if resp[0].Type().String() == "int64" {
+		result = int64(resp[0].Int())
+	} else if resp[0].Type().String() == "bool" {
+		result = resp[0].Bool()
 	} else if resp[0].Type().String() == "error" {
 		if !resp[0].IsNil() {
 			a.t.Fatalf("API method %s returned an unexpected error", a.method)
@@ -175,7 +180,7 @@ func testAPIResponse(a *apiTest) {
 	}
 
 	if result != a.expectedResult {
-		a.t.Fatalf("API method %s returned '%s'. Expected '%s'", a.method, result, a.expectedResult)
+		a.t.Fatalf("API method %v returned '%v'. Expected '%v'", a.method, result, a.expectedResult)
 	}
 }
 
@@ -198,21 +203,42 @@ func TestBroadbandProductType(t *testing.T) {
 }
 
 func TestConnectedDevices(t *testing.T) {
-	var buffer bytes.Buffer
+	server, hub := mockAPIClientServer("connected_devices")
+	defer server.Close()
 
-	buffer.WriteString("\n")
-	buffer.WriteString("--   ----------          ----------------         ----   \n")
-	buffer.WriteString("ID   IP Address          Physical Address         Type   \n")
-	buffer.WriteString("--   ----------          ----------------         ----   \n")
-	buffer.WriteString("2    192.168.1.68        11:AA:2B:33:44:5C        Ethernet\n")
-	buffer.WriteString("3    192.168.1.68        11:AA:2B:33:44:5C        Ethernet\n")
+	res, err := hub.ConnectedDevices()
 
-	testAPIResponse(&apiTest{
-		method:          "ConnectedDevices",
-		apiStubResponse: "connected_devices",
-		expectedResult:  buffer.String(),
-		t:               t,
-	})
+	if err != nil {
+		t.Fatalf("Error returned from ConnectedDevices %s", err.Error())
+	}
+
+	if len(res) != 2 {
+		t.Fatalf("Expected %d connected devices but got %d", 2, len(res))
+	}
+
+	if res[0].HostName != "foo.bar" {
+		t.Fatalf("Expected device 1 to have host name foo.bar but got %s", res[0].HostName)
+	}
+
+	if len(res[0].IPv4Addresses) != 1 {
+		t.Fatalf("Expected device 1 to have %d IPV4 addresses but got %d", 1, len(res[0].IPv4Addresses))
+	}
+
+	if len(res[0].IPv6Addresses) != 0 {
+		t.Fatalf("Expected device 1 to have %d IPV6 addresses but got %d", 0, len(res[0].IPv6Addresses))
+	}
+
+	if res[1].HostName != "foo.bar.cheese" {
+		t.Fatalf("Expected device 2 to have host name foo.bar but got %s", res[1].HostName)
+	}
+
+	if len(res[1].IPv4Addresses) != 1 {
+		t.Fatalf("Expected device 2 to have %d IPV4 addresses but got %d", 1, len(res[1].IPv4Addresses))
+	}
+
+	if len(res[1].IPv6Addresses) != 0 {
+		t.Fatalf("Expected device 2 to have %d IPV6 addresses but got %d", 0, len(res[1].IPv6Addresses))
+	}
 }
 
 func TestDataPumpVersion(t *testing.T) {
@@ -228,7 +254,7 @@ func TestDataReceived(t *testing.T) {
 	testAPIResponse(&apiTest{
 		method:          "DataReceived",
 		apiStubResponse: "data_received",
-		expectedResult:  "99887766",
+		expectedResult:  int64(99887766),
 		t:               t,
 	})
 }
@@ -237,34 +263,39 @@ func TestDataSent(t *testing.T) {
 	testAPIResponse(&apiTest{
 		method:          "DataSent",
 		apiStubResponse: "data_sent",
-		expectedResult:  "11223344",
+		expectedResult:  int64(11223344),
 		t:               t,
 	})
 }
 
 func TestDeviceInfo(t *testing.T) {
+	server, hub := mockAPIClientServer("device_info")
+	defer server.Close()
 
-	var buffer bytes.Buffer
-	buffer.WriteString("\n")
-	buffer.WriteString("--   ----------          ----------------         ----   \n")
-	buffer.WriteString("ID   IP Address          Physical Address         Type   \n")
-	buffer.WriteString("--   ----------          ----------------         ----   \n")
-	buffer.WriteString("2    192.168.1.68        11:AA:2B:33:44:5C        Ethernet\n")
+	res, err := hub.DeviceInfo(2)
 
-	testAPIResponse(&apiTest{
-		method:          "DeviceInfo",
-		methodArgs:      []interface{}{2},
-		apiStubResponse: "device_info",
-		expectedResult:  buffer.String(),
-		t:               t,
-	})
+	if err != nil {
+		t.Fatalf("Error returned from DeviceInfo %s", err.Error())
+	}
+
+	if res.HostName != "foo.bar" {
+		t.Fatalf("Expected device to have host name foo.bar but got %s", res.HostName)
+	}
+
+	if len(res.IPv4Addresses) != 1 {
+		t.Fatalf("Expected device to have %d IPV4 addresses but got %d", 1, len(res.IPv4Addresses))
+	}
+
+	if len(res.IPv6Addresses) != 0 {
+		t.Fatalf("Expected device to have %d IPV6 addresses but got %d", 0, len(res.IPv6Addresses))
+	}
 }
 
 func TestDhcpAuthoritative(t *testing.T) {
 	testAPIResponse(&apiTest{
 		method:          "DhcpAuthoritative",
 		apiStubResponse: "dhcp_authoritative",
-		expectedResult:  "true",
+		expectedResult:  true,
 		t:               t,
 	})
 }
@@ -299,18 +330,56 @@ func TestDownstreamSyncSpeed(t *testing.T) {
 	testAPIResponse(&apiTest{
 		method:          "DownstreamSyncSpeed",
 		apiStubResponse: "downstream_curr_rate",
-		expectedResult:  "97543",
+		expectedResult:  97543,
 		t:               t,
 	})
 }
 
 func TestEventLog(t *testing.T) {
-	testAPIResponse(&apiTest{
-		method:          "EventLog",
-		apiStubResponse: "event_log",
-		expectedResult:  "event 1\nevent 2\n\n",
-		t:               t,
-	})
+	server, hub := mockAPIClientServer("event_log")
+	defer server.Close()
+
+	res, err := hub.EventLog()
+
+	if err != nil {
+		t.Fatalf("Error returned from EventLog %s", err.Error())
+	}
+
+	if len(res.Entries) != 2 {
+		t.Fatalf("Expected 2 log entries but got %d", len(res.Entries))
+	}
+
+	if res.Entries[0].Timestamp != "01.03.2017 01:11:11" {
+		t.Fatalf("Expected log entry 1 timestamp 01.03.2017 01:11:11 but got %s", res.Entries[0].Timestamp)
+	}
+
+	if res.Entries[0].Type != "INF" {
+		t.Fatalf("Expected log entry 1 type INF but got %s", res.Entries[0].Type)
+	}
+
+	if res.Entries[0].Category != "WIFI" {
+		t.Fatalf("Expected category entry 1 type WIFI but got %s", res.Entries[0].Category)
+	}
+
+	if res.Entries[0].Message != "Test log message 1" {
+		t.Fatalf("Expected category entry 1 message 'Test log message 1' but got %s", res.Entries[0].Message)
+	}
+
+	if res.Entries[1].Timestamp != "02.03.2017 02:22:22" {
+		t.Fatalf("Expected log entry 2 timestamp 02.03.2017 02:22:22 but got %s", res.Entries[1].Timestamp)
+	}
+
+	if res.Entries[1].Type != "WRN" {
+		t.Fatalf("Expected log entry 2 type WRN but got %s", res.Entries[1].Type)
+	}
+
+	if res.Entries[1].Category != "TR69" {
+		t.Fatalf("Expected category entry 2 type TR69 but got %s", res.Entries[1].Category)
+	}
+
+	if res.Entries[1].Message != "ppp1:TR69 ConnectionRequest: processing request from ACS" {
+		t.Fatalf("Expected category entry 2 message 'ppp1:TR69 ConnectionRequest: processing request from ACS' but got %s", res.Entries[1].Message)
+	}
 }
 
 func TestHardwareVersion(t *testing.T) {
@@ -353,7 +422,7 @@ func TestLightBrightness(t *testing.T) {
 	testAPIResponse(&apiTest{
 		method:          "LightBrightness",
 		apiStubResponse: "hub_light_brightness",
-		expectedResult:  "50",
+		expectedResult:  50,
 		t:               t,
 	})
 }
@@ -363,6 +432,7 @@ func TestLightBrightnessSet(t *testing.T) {
 		method:          "LightBrightnessSet",
 		methodArgs:      []interface{}{50},
 		apiStubResponse: "hub_light_brightness_set",
+		expectedResult:  nil,
 		t:               t,
 	})
 }
@@ -372,6 +442,7 @@ func TestLightEnable(t *testing.T) {
 		method:          "LightEnable",
 		methodArgs:      []interface{}{true},
 		apiStubResponse: "hub_light_enable",
+		expectedResult:  nil,
 		t:               t,
 	})
 }
@@ -437,12 +508,12 @@ func TestPublicSubnetMask(t *testing.T) {
 }
 
 func TestReboot(t *testing.T) {
-	// If we're testing against the real router, we don't want to reboot it midway throuh the test suite!
-	if os.Getenv("HUB_USERNAME") != "" && os.Getenv("HUB_PASSWORD") != "" {
+	// If we're testing against the real router, we don't want to reboot it midway through the test suite!
+	if os.Getenv("HUB_USERNAME") == "" && os.Getenv("HUB_PASSWORD") == "" {
 		testAPIResponse(&apiTest{
 			method:          "Reboot",
 			apiStubResponse: "reboot",
-			expectedResult:  "",
+			expectedResult:  nil,
 			t:               t,
 		})
 	}
@@ -497,7 +568,7 @@ func TestUpstreamSyncSpeed(t *testing.T) {
 	testAPIResponse(&apiTest{
 		method:          "UpstreamSyncSpeed",
 		apiStubResponse: "upstream_curr_rate",
-		expectedResult:  "52121",
+		expectedResult:  52121,
 		t:               t,
 	})
 }

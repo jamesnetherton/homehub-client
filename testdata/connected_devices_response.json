@@ -782,7 +782,7 @@
                   "DetectedDeviceType": "",
                   "DeviceTypeAssociation": "",
                   "Hidden": false,
-                  "HostName": "",
+                  "HostName": "foo.bar",
                   "IPAddress": "192.168.1.68",
                   "IPv4Addresses": [
                     {
@@ -852,7 +852,7 @@
                   "DetectedDeviceType": "",
                   "DeviceTypeAssociation": "",
                   "Hidden": false,
-                  "HostName": "",
+                  "HostName": "foo.bar.cheese",
                   "IPAddress": "192.168.1.68",
                   "IPv4Addresses": [
                     {
