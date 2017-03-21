@@ -49,8 +49,7 @@ func (c *client) getEventLog() (result string, err error) {
 }
 
 func (c *client) getXPathValueString(xpath string) (result string, err error) {
-	req := newXPathRequest(&c.authData, xpath, methodGetValue, nil)
-	resp, err := req.send()
+	resp, err := c.doXPathRequest(xpath)
 
 	if err == nil {
 		if resp.ResponseBody.Reply != nil {
@@ -69,8 +68,7 @@ func (c *client) getXPathValueString(xpath string) (result string, err error) {
 }
 
 func (c *client) getXPathValueInt(xpath string) (result int, err error) {
-	req := newXPathRequest(&c.authData, xpath, methodGetValue, nil)
-	resp, err := req.send()
+	resp, err := c.doXPathRequest(xpath)
 
 	if err == nil {
 		if resp.ResponseBody.Reply != nil {
@@ -93,8 +91,7 @@ func (c *client) getXPathValueInt(xpath string) (result int, err error) {
 }
 
 func (c *client) getXPathValueInt64(xpath string) (result int64, err error) {
-	req := newXPathRequest(&c.authData, xpath, methodGetValue, nil)
-	resp, err := req.send()
+	resp, err := c.doXPathRequest(xpath)
 
 	if err == nil {
 		if resp.ResponseBody.Reply != nil {
@@ -117,8 +114,7 @@ func (c *client) getXPathValueInt64(xpath string) (result int64, err error) {
 }
 
 func (c *client) getXPathValueBool(xpath string) (result bool, err error) {
-	req := newXPathRequest(&c.authData, xpath, methodGetValue, nil)
-	resp, err := req.send()
+	resp, err := c.doXPathRequest(xpath)
 
 	if err == nil {
 		if resp.ResponseBody.Reply != nil {
@@ -136,6 +132,10 @@ func (c *client) getXPathValueBool(xpath string) (result bool, err error) {
 	}
 
 	return false, err
+}
+
+func (c *client) doXPathRequest(xpath string) (response *response, err error) {
+	return newXPathRequest(&c.authData, xpath, methodGetValue, nil).send()
 }
 
 func (c *client) getXPathValues(xpath string) (values []DeviceDetail, err error) {
