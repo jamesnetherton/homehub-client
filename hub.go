@@ -1,12 +1,11 @@
 package homehub
 
 import (
-	"io/ioutil"
-	"log"
-	"os"
 	"strconv"
 	"strings"
 )
+
+var debug debugging
 
 // Hub represents a Home Hub client for interacting with the router
 type Hub struct {
@@ -17,9 +16,6 @@ type Hub struct {
 // New creates a new Hub client for interacting with the router
 func New(URL string, username string, password string) *Hub {
 	c := newClient(URL+"/cgi/json-req", username, hexmd5(password))
-	log.SetPrefix("INFO: ")
-	log.SetFlags(log.LstdFlags)
-	log.SetOutput(ioutil.Discard)
 	return &Hub{c, URL}
 }
 
@@ -98,9 +94,9 @@ func (h *Hub) DownstreamSyncSpeed() (result int, err error) {
 // EnableDebug causes HTTP client request and responses to be output to the console
 func (h *Hub) EnableDebug(enable bool) {
 	if enable {
-		log.SetOutput(os.Stdout)
+		debug = true
 	} else {
-		log.SetOutput(ioutil.Discard)
+		debug = false
 	}
 }
 

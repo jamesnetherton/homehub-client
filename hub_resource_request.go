@@ -3,7 +3,6 @@ package homehub
 import (
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -44,7 +43,7 @@ func (r *hubResourceRequest) send() (re *response, err error) {
 	httpRequest.AddCookie(&http.Cookie{Name: "session", Value: url.QueryEscape(string(cj))})
 
 	dump, _ := httputil.DumpRequest(httpRequest, true)
-	log.Println(string(dump))
+	debug.Println(string(dump))
 
 	httpClient := &http.Client{}
 	httpResponse, err := httpClient.Do(httpRequest)
@@ -53,7 +52,7 @@ func (r *hubResourceRequest) send() (re *response, err error) {
 	}
 
 	dump, _ = httputil.DumpResponse(httpResponse, true)
-	log.Println(string(dump))
+	debug.Println(string(dump))
 
 	defer httpResponse.Body.Close()
 	response := &response{}

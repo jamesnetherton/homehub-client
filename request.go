@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"io/ioutil"
-	"log"
 	"math"
 	"math/rand"
 	"net/http"
@@ -169,7 +168,7 @@ func (r *genericRequest) send() (re *response, err error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Println(string(j))
+	debug.Println(string(j))
 
 	form := url.Values{}
 	form.Add("req", string(j))
@@ -181,7 +180,7 @@ func (r *genericRequest) send() (re *response, err error) {
 	httpRequest.Header.Set("Accept-Language", "en-GB,en-US;q=0.8,en;q=0.6")
 
 	dump, _ := httputil.DumpRequest(httpRequest, true)
-	log.Println(string(dump))
+	debug.Println(string(dump))
 
 	httpClient := &http.Client{}
 	httpResponse, err := httpClient.Do(httpRequest)
@@ -190,7 +189,7 @@ func (r *genericRequest) send() (re *response, err error) {
 	}
 
 	dump, _ = httputil.DumpResponse(httpResponse, true)
-	log.Println(string(dump))
+	debug.Println(string(dump))
 
 	defer httpResponse.Body.Close()
 	response := &response{}
