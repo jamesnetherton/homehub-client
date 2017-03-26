@@ -400,24 +400,6 @@ func TestInternetConnectionStatus(t *testing.T) {
 	})
 }
 
-func TestIsLoggedInFalse(t *testing.T) {
-	hub := New("", "", "")
-
-	if hub.IsLoggedIn() {
-		t.Errorf("Expected IsLoggedIn to return false")
-	}
-}
-
-func TestIsLoggedInTrue(t *testing.T) {
-	server, hub := mockAPIClientServer("login")
-	defer server.Close()
-
-	hub.Login()
-	if !hub.IsLoggedIn() {
-		t.Errorf("Expected IsLoggedIn to return true")
-	}
-}
-
 func TestLightBrightness(t *testing.T) {
 	testAPIResponse(&apiTest{
 		method:          "LightBrightness",

@@ -11,12 +11,13 @@ type client struct {
 }
 
 func newClient(URL string, username string, password string) *client {
-	a := authData{
+	auth := authData{
 		url:      URL,
 		userName: username,
 		password: password,
 	}
-	return &client{a}
+
+	return &client{auth}
 }
 
 func (c *client) doReboot() (err error) {

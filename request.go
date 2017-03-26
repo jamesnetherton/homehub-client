@@ -160,10 +160,6 @@ type dataModel struct {
 }
 
 func (r *genericRequest) send() (re *response, err error) {
-	if !r.authData.isAuthenticated() {
-		return nil, errors.New("User not logged in")
-	}
-
 	j, err := json.Marshal(r)
 	if err != nil {
 		return nil, err
