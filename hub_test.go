@@ -509,6 +509,89 @@ func TestMaintenanceFirmwareVersion(t *testing.T) {
 	})
 }
 
+func TestNatRules(t *testing.T) {
+	server, hub := mockAPIClientServer("nat_rules")
+	defer server.Close()
+
+	res, err := hub.NatRules()
+
+	if err != nil {
+		t.Fatalf("Error returned from NatRules %s", err.Error())
+	}
+
+	if err != nil {
+		t.Fatalf("Error returned from EventLog %s", err.Error())
+	}
+
+	if len(res) != 1 {
+		t.Fatalf("Expected 1 NAT rule but got %d", len(res))
+	}
+
+	if res[0].Alias != "awesome-nat-rule-alias" {
+		t.Fatalf("Expected NAT rule alias awesome-nat-rule-alias but got %s", res[0].Alias)
+	}
+
+	if res[0].AllExternalInterfaces != false {
+		t.Fatalf("Expected NAT rule AllExternalInterfaces false but got %s", res[0].AllExternalInterfaces)
+	}
+
+	if res[0].Creator != "HUB_TESTER" {
+		t.Fatalf("Expected NAT rule creator HUB_TESTER but got %s", res[0].Creator)
+	}
+
+	if res[0].Description != "Test NAT Rule description" {
+		t.Fatalf("Expected NAT rule description Test NAT Rule description but got %s", res[0].Description)
+	}
+
+	if res[0].Enabled != true {
+		t.Fatalf("Expected NAT rule enabled true but got %s", res[0].Enabled)
+	}
+
+	if res[0].ExternalPort != 1111 {
+		t.Fatalf("Expected NAT rule external port 1111 but got %d", res[0].ExternalPort)
+	}
+
+	if res[0].ExternalPortEndRange != 0 {
+		t.Fatalf("Expected NAT rule external port end range 0 but got %d", res[0].ExternalPortEndRange)
+	}
+
+	if res[0].InternalClientIP != "192.168.1.68" {
+		t.Fatalf("Expected NAT rule client IP 192.168.1.68 but got %s", res[0].InternalClientIP)
+	}
+
+	if res[0].InternalPort != 2222 {
+		t.Fatalf("Expected NAT rule internal port 2222 but got %d", res[0].InternalPort)
+	}
+
+	if res[0].LeaseDuration != 60 {
+		t.Fatalf("Expected NAT rule lease duration 60 but got %d", res[0].LeaseDuration)
+	}
+
+	if res[0].LeaseStart != "2016-08-30T19:48:55+0100" {
+		t.Fatalf("Expected NAT rule lease start 2016-08-30T19:48:55+0100 but got %s", res[0].LeaseStart)
+	}
+
+	if res[0].Protocol != "TCP" {
+		t.Fatalf("Expected NAT rule protocol TCP but got %s", res[0].Protocol)
+	}
+
+	if res[0].RemoteHostIP != "192.168.1.68" {
+		t.Fatalf("Expected NAT rule remote host ip 192.168.1.68 but got %s", res[0].RemoteHostIP)
+	}
+
+	if res[0].Service != "TEST_SERVICE" {
+		t.Fatalf("Expected NAT rule servie TEST_SERVICE but got %s", res[0].Service)
+	}
+
+	if res[0].Target != "ACCEPT" {
+		t.Fatalf("Expected NAT rule target ACCEPT but got %s", res[0].Target)
+	}
+
+	if res[0].UID != 1 {
+		t.Fatalf("Expected NAT rule type UID 1 but got %d", res[0].UID)
+	}
+}
+
 func TestPublicIPAddress(t *testing.T) {
 	testAPIResponse(&apiTest{
 		method:          "PublicIPAddress",

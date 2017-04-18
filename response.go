@@ -3,6 +3,7 @@ package homehub
 import (
 	"encoding/json"
 	"fmt"
+	"reflect"
 	"strings"
 )
 
@@ -51,8 +52,8 @@ type responseEvent struct {
 	//TODO: Events not supported right now
 }
 
-func (r *response) getValues(xpath string) []DeviceDetail {
-	var devices []DeviceDetail
+func (r *response) getValues(xpath string, valueType reflect.Type) []interface{} {
+	var values []interface{}
 
 	if r.ResponseBody.Reply != nil {
 		for _, action := range r.ResponseBody.Reply.ResponseActions {
@@ -60,16 +61,18 @@ func (r *response) getValues(xpath string) []DeviceDetail {
 			if c.XPath == xpath {
 				p := c.Parameters
 				if strings.HasPrefix(fmt.Sprintf("%s", p.Value), "[") {
-					v := &[]DeviceDetail{}
+					v := reflect.New(valueType).Interface()
 					x, _ := json.Marshal(p.Value)
 					json.Unmarshal(x, v)
-					devices = append(devices, (*v)...)
+					array := reflect.ValueOf(v).Elem()
+					for i := 0; i < array.Len(); i++ {
+						values = append(values, array.Index(i).Interface())
+					}
 				}
 			}
 		}
 	}
-
-	return devices
+	return values
 }
 
 func (r *response) getHost() *host {

@@ -139,12 +139,12 @@ func (c *client) doXPathRequest(xpath string) (response *response, err error) {
 	return newXPathRequest(&c.authData, xpath, methodGetValue, nil).send()
 }
 
-func (c *client) getXPathValues(xpath string) (values []DeviceDetail, err error) {
+func (c *client) getXPathValues(xpath string, valueType reflect.Type) (values []interface{}, err error) {
 	req := newXPathRequest(&c.authData, xpath, methodGetValue, nil)
 	resp, err := req.send()
 
 	if err == nil {
-		return resp.getValues(xpath), nil
+		return resp.getValues(xpath, valueType), nil
 	}
 
 	return nil, err

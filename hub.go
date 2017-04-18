@@ -1,6 +1,7 @@
 package homehub
 
 import (
+	"reflect"
 	"strconv"
 	"strings"
 )
@@ -57,7 +58,18 @@ func (h *Hub) BroadbandProductType() (result string, err error) {
 
 // ConnectedDevices returns information about any devices connected to the router
 func (h *Hub) ConnectedDevices() (result []DeviceDetail, err error) {
-	return h.client.getXPathValues(mainCacheableHosts)
+	var d []DeviceDetail
+	devices, err := h.client.getXPathValues(mainCacheableHosts, reflect.TypeOf(d))
+
+	if err == nil {
+		var deviceDetails []DeviceDetail
+		for _, deviceDetail := range devices {
+			deviceDetails = append(deviceDetails, deviceDetail.(DeviceDetail))
+		}
+		return deviceDetails, nil
+	}
+
+	return nil, err
 }
 
 // DataPumpVersion returns the DSL line firmware version
@@ -196,6 +208,22 @@ func (h *Hub) Login() (success bool, err error) {
 // MaintenaceFirmwareVersion returns the maintenance firmware version
 func (h *Hub) MaintenaceFirmwareVersion() (result string, err error) {
 	return h.client.getXPathValueString(technicalLogFirmwareVersion)
+}
+
+// NatRules returns IPV4 firewall NAT rules
+func (h *Hub) NatRules() (result []NatRule, err error) {
+	var r []NatRule
+	natRules, err := h.client.getXPathValues(accessControlPortForwardingPortmappings, reflect.TypeOf(r))
+
+	if err == nil {
+		var rules []NatRule
+		for _, rule := range natRules {
+			rules = append(rules, rule.(NatRule))
+		}
+		return rules, nil
+	}
+
+	return nil, err
 }
 
 // PublicIPAddress returns the router public IP address
