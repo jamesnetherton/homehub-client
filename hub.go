@@ -256,6 +256,11 @@ func (h *Hub) NatRuleCreate(natRule *NatRule) (err error) {
 	return err
 }
 
+// NatRuleDelete deletes an IPV4 firewall NAT rule
+func (h *Hub) NatRuleDelete(id int) (err error) {
+	return h.client.deleteChildXPathValue(strings.Replace(accessControlPortForwardingUID, "#", strconv.Itoa(id), 1))
+}
+
 // PublicIPAddress returns the router public IP address
 func (h *Hub) PublicIPAddress() (result string, err error) {
 	return h.client.getXPathValueString(mySagemcomBoxDeviceInfoPublicIpv4)

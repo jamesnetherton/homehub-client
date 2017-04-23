@@ -698,6 +698,16 @@ func TestNatRuleCreate(t *testing.T) {
 	}
 }
 
+func TestNatRuleDelete(t *testing.T) {
+	testAPIResponse(&apiTest{
+		method:          "NatRuleDelete",
+		methodArgs:      []interface{}{16},
+		apiStubResponse: "nat_rule_delete",
+		expectedResult:  nil,
+		t:               t,
+	})
+}
+
 func TestPublicIPAddress(t *testing.T) {
 	testAPIResponse(&apiTest{
 		method:          "PublicIPAddress",

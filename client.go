@@ -194,8 +194,6 @@ func (c *client) addChildXPathValue(xpath string, value interface{}) (result int
 	if err == nil {
 		responseXPath := resp.ResponseBody.Reply.ResponseActions[0].ResponseCallbacks[0].XPath
 
-		// Device/NAT/PortMappings/PortMapping[@uid='14']
-
 		re := regexp.MustCompile("'(.*)'")
 		matches := re.FindAllStringSubmatch(responseXPath, -1)
 		if len(matches) > 0 {
@@ -204,6 +202,12 @@ func (c *client) addChildXPathValue(xpath string, value interface{}) (result int
 	}
 
 	return -1, err
+}
+
+func (c *client) deleteChildXPathValue(xpath string) (err error) {
+	req := newXPathRequest(&c.authData, xpath, methodDeleteValue, nil)
+	_, err = req.send()
+	return err
 }
 
 func (c *client) doXPathRequest(xpath string) (response *response, err error) {
