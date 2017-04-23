@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -146,18 +147,7 @@ func (c *client) getXPathValueType(xpath string, valueType reflect.Type) (result
 		return nil, err
 	}
 
-	var xPathValueType interface{}
-	if resp.ResponseBody.Reply != nil {
-		params := resp.ResponseBody.Reply.ResponseActions[0].ResponseCallbacks[0].Parameters
-		if strings.HasPrefix(fmt.Sprintf("%s", params.Value), "map[") {
-			v := reflect.New(valueType).Interface()
-			x, _ := json.Marshal(params.Value)
-			json.Unmarshal(x, v)
-			xPathValueType = reflect.ValueOf(v).Interface()
-		}
-	}
-
-	return xPathValueType, nil
+	return getMapValue(resp, valueType), nil
 }
 
 func (c *client) getXPathValues(xpath string, valueType reflect.Type) (values []interface{}, err error) {
@@ -197,6 +187,39 @@ func (c *client) setXPathValue(xpath string, value interface{}) (err error) {
 	return err
 }
 
+func (c *client) addChildXPathValue(xpath string, value interface{}) (result int, err error) {
+	req := newXPathRequest(&c.authData, xpath, methodAddChild, value)
+	resp, err := req.send()
+
+	if err == nil {
+		responseXPath := resp.ResponseBody.Reply.ResponseActions[0].ResponseCallbacks[0].XPath
+
+		// Device/NAT/PortMappings/PortMapping[@uid='14']
+
+		re := regexp.MustCompile("'(.*)'")
+		matches := re.FindAllStringSubmatch(responseXPath, -1)
+		if len(matches) > 0 {
+			return strconv.Atoi(matches[0][1])
+		}
+	}
+
+	return -1, err
+}
+
 func (c *client) doXPathRequest(xpath string) (response *response, err error) {
 	return newXPathRequest(&c.authData, xpath, methodGetValue, nil).send()
+}
+
+func getMapValue(response *response, valueType reflect.Type) (result interface{}) {
+	var xPathValueType interface{}
+	if response.ResponseBody.Reply != nil {
+		params := response.ResponseBody.Reply.ResponseActions[0].ResponseCallbacks[0].Parameters
+		if strings.HasPrefix(fmt.Sprintf("%s", params.Value), "map[") {
+			v := reflect.New(valueType).Interface()
+			x, _ := json.Marshal(params.Value)
+			json.Unmarshal(x, v)
+			xPathValueType = reflect.ValueOf(v).Interface()
+		}
+	}
+	return xPathValueType
 }

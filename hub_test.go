@@ -663,6 +663,41 @@ func TestNatRule(t *testing.T) {
 	}
 }
 
+func TestNatRuleCreate(t *testing.T) {
+	server, hub := mockAPIClientServer("nat_rule_create")
+	defer server.Close()
+
+	natRule := &NatRule{
+		Enabled:               false,
+		Alias:                 "",
+		externalInterface:     "",
+		AllExternalInterfaces: false,
+		LeaseDuration:         0,
+		RemoteHostIP:          "",
+		ExternalPort:          1111,
+		ExternalPortEndRange:  1111,
+		internalInterface:     "",
+		InternalPort:          0,
+		Protocol:              "TCP",
+		Service:               "Test Service",
+		InternalClientIP:      "",
+		Description:           "Test Description",
+		Creator:               "JAMES",
+		Target:                "REJECT",
+		LeaseStart:            "",
+	}
+
+	err := hub.NatRuleCreate(natRule)
+
+	if err != nil {
+		t.Fatalf("Error returned from NatRuleCreate %s", err.Error())
+	}
+
+	if natRule.UID != 14 {
+		t.Fatalf("Expected NAT rule UID 13 but was %d", natRule.UID)
+	}
+}
+
 func TestPublicIPAddress(t *testing.T) {
 	testAPIResponse(&apiTest{
 		method:          "PublicIPAddress",

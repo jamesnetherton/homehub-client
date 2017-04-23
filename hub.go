@@ -244,6 +244,18 @@ func (h *Hub) NatRule(id int) (result *NatRule, err error) {
 	return nil, err
 }
 
+// NatRuleCreate creates an IPV4 firewall NAT rule
+func (h *Hub) NatRuleCreate(natRule *NatRule) (err error) {
+	uid, err := h.client.addChildXPathValue(accessControlPortForwardingPortmappings, &portMapping{NatRule: *natRule})
+
+	if err == nil {
+		natRule.UID = uid
+		return nil
+	}
+
+	return err
+}
+
 // PublicIPAddress returns the router public IP address
 func (h *Hub) PublicIPAddress() (result string, err error) {
 	return h.client.getXPathValueString(mySagemcomBoxDeviceInfoPublicIpv4)
