@@ -1,9 +1,12 @@
 package homehub
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
 	"reflect"
 	"strconv"
+	"strings"
 )
 
 type client struct {
@@ -135,8 +138,26 @@ func (c *client) getXPathValueBool(xpath string) (result bool, err error) {
 	return false, err
 }
 
-func (c *client) doXPathRequest(xpath string) (response *response, err error) {
-	return newXPathRequest(&c.authData, xpath, methodGetValue, nil).send()
+func (c *client) getXPathValueType(xpath string, valueType reflect.Type) (result interface{}, err error) {
+	req := newXPathRequest(&c.authData, xpath, methodGetValue, nil)
+	resp, err := req.send()
+
+	if err != nil {
+		return nil, err
+	}
+
+	var xPathValueType interface{}
+	if resp.ResponseBody.Reply != nil {
+		params := resp.ResponseBody.Reply.ResponseActions[0].ResponseCallbacks[0].Parameters
+		if strings.HasPrefix(fmt.Sprintf("%s", params.Value), "map[") {
+			v := reflect.New(valueType).Interface()
+			x, _ := json.Marshal(params.Value)
+			json.Unmarshal(x, v)
+			xPathValueType = reflect.ValueOf(v).Interface()
+		}
+	}
+
+	return xPathValueType, nil
 }
 
 func (c *client) getXPathValues(xpath string, valueType reflect.Type) (values []interface{}, err error) {
@@ -144,18 +165,27 @@ func (c *client) getXPathValues(xpath string, valueType reflect.Type) (values []
 	resp, err := req.send()
 
 	if err == nil {
-		return resp.getValues(xpath, valueType), nil
-	}
+		var values []interface{}
 
-	return nil, err
-}
+		if resp.ResponseBody.Reply != nil {
+			for _, action := range resp.ResponseBody.Reply.ResponseActions {
+				c := action.ResponseCallbacks[0]
+				if c.XPath == xpath {
+					p := c.Parameters
+					if strings.HasPrefix(fmt.Sprintf("%s", p.Value), "[") {
+						v := reflect.New(valueType).Interface()
+						x, _ := json.Marshal(p.Value)
+						json.Unmarshal(x, v)
+						array := reflect.ValueOf(v).Elem()
+						for i := 0; i < array.Len(); i++ {
+							values = append(values, array.Index(i).Interface())
+						}
+					}
+				}
+			}
+		}
 
-func (c *client) getXPathHostValue(xpath string) (h *host, err error) {
-	req := newXPathRequest(&c.authData, xpath, methodGetValue, nil)
-	resp, err := req.send()
-
-	if err == nil {
-		return resp.getHost(), nil
+		return values, nil
 	}
 
 	return nil, err
@@ -165,4 +195,8 @@ func (c *client) setXPathValue(xpath string, value interface{}) (err error) {
 	req := newXPathRequest(&c.authData, xpath, methodSetValue, value)
 	_, err = req.send()
 	return err
+}
+
+func (c *client) doXPathRequest(xpath string) (response *response, err error) {
+	return newXPathRequest(&c.authData, xpath, methodGetValue, nil).send()
 }

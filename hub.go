@@ -88,9 +88,15 @@ func (h *Hub) DataSent() (result int64, err error) {
 }
 
 // DeviceInfo returns infomation about a device matching the specified id
-func (h *Hub) DeviceInfo(id int) (result DeviceDetail, err error) {
-	host, err := h.client.getXPathHostValue(strings.Replace(ethernetDeviceDevicesList, "#", strconv.Itoa(id), 1))
-	return host.DeviceDetail, err
+func (h *Hub) DeviceInfo(id int) (result *DeviceDetail, err error) {
+	var hostType host
+	valueType, err := h.client.getXPathValueType(strings.Replace(ethernetDeviceDevicesList, "#", strconv.Itoa(id), 1), reflect.TypeOf(hostType))
+
+	if err == nil {
+		return &valueType.(*host).DeviceDetail, err
+	}
+
+	return nil, err
 }
 
 // DhcpAuthoritative returns whether the hub is the authoritive DHCP server
@@ -221,6 +227,18 @@ func (h *Hub) NatRules() (result []NatRule, err error) {
 			rules = append(rules, rule.(NatRule))
 		}
 		return rules, nil
+	}
+
+	return nil, err
+}
+
+// NatRule returns an IPV4 firewall NAT rule matching the specified id
+func (h *Hub) NatRule(id int) (result *NatRule, err error) {
+	var portMappingType portMapping
+	valueType, err := h.client.getXPathValueType(strings.Replace(accessControlPortForwardingUID, "#", strconv.Itoa(id), 1), reflect.TypeOf(portMappingType))
+
+	if err == nil {
+		return &valueType.(*portMapping).NatRule, err
 	}
 
 	return nil, err

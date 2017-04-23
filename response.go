@@ -1,12 +1,5 @@
 package homehub
 
-import (
-	"encoding/json"
-	"fmt"
-	"reflect"
-	"strings"
-)
-
 type response struct {
 	body         string
 	ResponseBody responseBody
@@ -50,42 +43,4 @@ type result struct {
 
 type responseEvent struct {
 	//TODO: Events not supported right now
-}
-
-func (r *response) getValues(xpath string, valueType reflect.Type) []interface{} {
-	var values []interface{}
-
-	if r.ResponseBody.Reply != nil {
-		for _, action := range r.ResponseBody.Reply.ResponseActions {
-			c := action.ResponseCallbacks[0]
-			if c.XPath == xpath {
-				p := c.Parameters
-				if strings.HasPrefix(fmt.Sprintf("%s", p.Value), "[") {
-					v := reflect.New(valueType).Interface()
-					x, _ := json.Marshal(p.Value)
-					json.Unmarshal(x, v)
-					array := reflect.ValueOf(v).Elem()
-					for i := 0; i < array.Len(); i++ {
-						values = append(values, array.Index(i).Interface())
-					}
-				}
-			}
-		}
-	}
-	return values
-}
-
-func (r *response) getHost() *host {
-	var h *host
-
-	if r.ResponseBody.Reply != nil {
-		params := r.ResponseBody.Reply.ResponseActions[0].ResponseCallbacks[0].Parameters
-		if strings.HasPrefix(fmt.Sprintf("%s", params.Value), "map[Host") {
-			h = &host{}
-			x, _ := json.Marshal(params.Value)
-			json.Unmarshal(x, h)
-		}
-	}
-
-	return h
 }

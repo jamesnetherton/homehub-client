@@ -519,10 +519,6 @@ func TestNatRules(t *testing.T) {
 		t.Fatalf("Error returned from NatRules %s", err.Error())
 	}
 
-	if err != nil {
-		t.Fatalf("Error returned from EventLog %s", err.Error())
-	}
-
 	if len(res) != 1 {
 		t.Fatalf("Expected 1 NAT rule but got %d", len(res))
 	}
@@ -589,6 +585,81 @@ func TestNatRules(t *testing.T) {
 
 	if res[0].UID != 1 {
 		t.Fatalf("Expected NAT rule type UID 1 but got %d", res[0].UID)
+	}
+}
+
+func TestNatRule(t *testing.T) {
+	server, hub := mockAPIClientServer("nat_rule")
+	defer server.Close()
+
+	natRule, err := hub.NatRule(1)
+
+	if err != nil {
+		t.Fatalf("Error returned from NatRule %s", err.Error())
+	}
+
+	if natRule.Alias != "awesome-nat-rule-alias" {
+		t.Fatalf("Expected NAT rule alias awesome-nat-rule-alias but got %s", natRule.Alias)
+	}
+
+	if natRule.AllExternalInterfaces != false {
+		t.Fatalf("Expected NAT rule AllExternalInterfaces false but got %s", natRule.AllExternalInterfaces)
+	}
+
+	if natRule.Creator != "HUB_TESTER" {
+		t.Fatalf("Expected NAT rule creator HUB_TESTER but got %s", natRule.Creator)
+	}
+
+	if natRule.Description != "Test NAT Rule description" {
+		t.Fatalf("Expected NAT rule description Test NAT Rule description but got %s", natRule.Description)
+	}
+
+	if natRule.Enabled != true {
+		t.Fatalf("Expected NAT rule enabled true but got %s", natRule.Enabled)
+	}
+
+	if natRule.ExternalPort != 1111 {
+		t.Fatalf("Expected NAT rule external port 1111 but got %d", natRule.ExternalPort)
+	}
+
+	if natRule.ExternalPortEndRange != 0 {
+		t.Fatalf("Expected NAT rule external port end range 0 but got %d", natRule.ExternalPortEndRange)
+	}
+
+	if natRule.InternalClientIP != "192.168.1.68" {
+		t.Fatalf("Expected NAT rule client IP 192.168.1.68 but got %s", natRule.InternalClientIP)
+	}
+
+	if natRule.InternalPort != 2222 {
+		t.Fatalf("Expected NAT rule internal port 2222 but got %d", natRule.InternalPort)
+	}
+
+	if natRule.LeaseDuration != 60 {
+		t.Fatalf("Expected NAT rule lease duration 60 but got %d", natRule.LeaseDuration)
+	}
+
+	if natRule.LeaseStart != "2016-08-30T19:48:55+0100" {
+		t.Fatalf("Expected NAT rule lease start 2016-08-30T19:48:55+0100 but got %s", natRule.LeaseStart)
+	}
+
+	if natRule.Protocol != "TCP" {
+		t.Fatalf("Expected NAT rule protocol TCP but got %s", natRule.Protocol)
+	}
+
+	if natRule.RemoteHostIP != "192.168.1.68" {
+		t.Fatalf("Expected NAT rule remote host ip 192.168.1.68 but got %s", natRule.RemoteHostIP)
+	}
+
+	if natRule.Service != "TEST_SERVICE" {
+		t.Fatalf("Expected NAT rule servie TEST_SERVICE but got %s", natRule.Service)
+	}
+
+	if natRule.Target != "ACCEPT" {
+		t.Fatalf("Expected NAT rule target ACCEPT but got %s", natRule.Target)
+	}
+
+	if natRule.UID != 1 {
+		t.Fatalf("Expected NAT rule type UID 1 but got %d", natRule.UID)
 	}
 }
 

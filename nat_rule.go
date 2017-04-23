@@ -21,3 +21,7 @@ type NatRule struct {
 	Target                string `json:"Target"`
 	LeaseStart            string `json:"LeaseStart"`
 }
+
+type portMapping struct {
+	NatRule `json:"PortMapping,omitempty"`
+}
