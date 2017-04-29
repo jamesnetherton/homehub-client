@@ -261,6 +261,11 @@ func (h *Hub) NatRuleDelete(id int) (err error) {
 	return h.client.deleteChildXPathValue(strings.Replace(accessControlPortForwardingUID, "#", strconv.Itoa(id), 1))
 }
 
+// NatRuleUpdate updates an existing IPV4 firewall NAT rule
+func (h *Hub) NatRuleUpdate(natRule NatRule) (err error) {
+	return h.client.setXPathValues(natRule.getUpdateActions())
+}
+
 // PublicIPAddress returns the router public IP address
 func (h *Hub) PublicIPAddress() (result string, err error) {
 	return h.client.getXPathValueString(mySagemcomBoxDeviceInfoPublicIpv4)
@@ -273,7 +278,6 @@ func (h *Hub) PublicSubnetMask() (result string, err error) {
 
 // Reboot restarts router serial number
 func (h *Hub) Reboot() (err error) {
-	// TODO: Figure out why the response is HTTP 500 and why there is a delay till the router reboots
 	return h.client.doReboot()
 }
 

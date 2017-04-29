@@ -539,8 +539,8 @@ func TestNatRules(t *testing.T) {
 		t.Fatalf("Expected NAT rule description Test NAT Rule description but got %s", res[0].Description)
 	}
 
-	if res[0].Enabled != true {
-		t.Fatalf("Expected NAT rule enabled true but got %s", res[0].Enabled)
+	if res[0].Enable != true {
+		t.Fatalf("Expected NAT rule enable true but got %s", res[0].Enable)
 	}
 
 	if res[0].ExternalPort != 1111 {
@@ -551,8 +551,8 @@ func TestNatRules(t *testing.T) {
 		t.Fatalf("Expected NAT rule external port end range 0 but got %d", res[0].ExternalPortEndRange)
 	}
 
-	if res[0].InternalClientIP != "192.168.1.68" {
-		t.Fatalf("Expected NAT rule client IP 192.168.1.68 but got %s", res[0].InternalClientIP)
+	if res[0].InternalClient != "192.168.1.68" {
+		t.Fatalf("Expected NAT rule client IP 192.168.1.68 but got %s", res[0].InternalClient)
 	}
 
 	if res[0].InternalPort != 2222 {
@@ -571,8 +571,8 @@ func TestNatRules(t *testing.T) {
 		t.Fatalf("Expected NAT rule protocol TCP but got %s", res[0].Protocol)
 	}
 
-	if res[0].RemoteHostIP != "192.168.1.68" {
-		t.Fatalf("Expected NAT rule remote host ip 192.168.1.68 but got %s", res[0].RemoteHostIP)
+	if res[0].RemoteHost != "192.168.1.68" {
+		t.Fatalf("Expected NAT rule remote host ip 192.168.1.68 but got %s", res[0].RemoteHost)
 	}
 
 	if res[0].Service != "TEST_SERVICE" {
@@ -614,8 +614,8 @@ func TestNatRule(t *testing.T) {
 		t.Fatalf("Expected NAT rule description Test NAT Rule description but got %s", natRule.Description)
 	}
 
-	if natRule.Enabled != true {
-		t.Fatalf("Expected NAT rule enabled true but got %s", natRule.Enabled)
+	if natRule.Enable != true {
+		t.Fatalf("Expected NAT rule enable true but got %s", natRule.Enable)
 	}
 
 	if natRule.ExternalPort != 1111 {
@@ -626,8 +626,8 @@ func TestNatRule(t *testing.T) {
 		t.Fatalf("Expected NAT rule external port end range 0 but got %d", natRule.ExternalPortEndRange)
 	}
 
-	if natRule.InternalClientIP != "192.168.1.68" {
-		t.Fatalf("Expected NAT rule client IP 192.168.1.68 but got %s", natRule.InternalClientIP)
+	if natRule.InternalClient != "192.168.1.68" {
+		t.Fatalf("Expected NAT rule client IP 192.168.1.68 but got %s", natRule.InternalClient)
 	}
 
 	if natRule.InternalPort != 2222 {
@@ -646,8 +646,8 @@ func TestNatRule(t *testing.T) {
 		t.Fatalf("Expected NAT rule protocol TCP but got %s", natRule.Protocol)
 	}
 
-	if natRule.RemoteHostIP != "192.168.1.68" {
-		t.Fatalf("Expected NAT rule remote host ip 192.168.1.68 but got %s", natRule.RemoteHostIP)
+	if natRule.RemoteHost != "192.168.1.68" {
+		t.Fatalf("Expected NAT rule remote host ip 192.168.1.68 but got %s", natRule.RemoteHost)
 	}
 
 	if natRule.Service != "TEST_SERVICE" {
@@ -668,19 +668,19 @@ func TestNatRuleCreate(t *testing.T) {
 	defer server.Close()
 
 	natRule := &NatRule{
-		Enabled:               false,
+		Enable:                false,
 		Alias:                 "",
-		externalInterface:     "",
+		ExternalInterface:     "",
 		AllExternalInterfaces: false,
 		LeaseDuration:         0,
-		RemoteHostIP:          "",
+		RemoteHost:            "",
 		ExternalPort:          1111,
 		ExternalPortEndRange:  1111,
-		internalInterface:     "",
+		InternalInterface:     "",
 		InternalPort:          0,
 		Protocol:              "TCP",
 		Service:               "Test Service",
-		InternalClientIP:      "",
+		InternalClient:        "",
 		Description:           "Test Description",
 		Creator:               "JAMES",
 		Target:                "REJECT",
@@ -703,6 +703,37 @@ func TestNatRuleDelete(t *testing.T) {
 		method:          "NatRuleDelete",
 		methodArgs:      []interface{}{16},
 		apiStubResponse: "nat_rule_delete",
+		expectedResult:  nil,
+		t:               t,
+	})
+}
+
+func TestNatRuleUpdate(t *testing.T) {
+	natRule := NatRule{
+		UID:                   18,
+		Enable:                true,
+		Alias:                 "Updated Alias",
+		ExternalInterface:     "",
+		AllExternalInterfaces: false,
+		LeaseDuration:         30,
+		RemoteHost:            "",
+		ExternalPort:          2222,
+		ExternalPortEndRange:  2222,
+		InternalInterface:     "",
+		InternalPort:          0,
+		Protocol:              "UDP",
+		Service:               "FTP",
+		InternalClient:        "",
+		Description:           "Updated Test Description",
+		Creator:               "HIDDEN",
+		Target:                "DROP",
+		LeaseStart:            "",
+	}
+
+	testAPIResponse(&apiTest{
+		method:          "NatRuleUpdate",
+		methodArgs:      []interface{}{natRule},
+		apiStubResponse: "nat_rule_update",
 		expectedResult:  nil,
 		t:               t,
 	})

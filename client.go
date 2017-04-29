@@ -187,6 +187,12 @@ func (c *client) setXPathValue(xpath string, value interface{}) (err error) {
 	return err
 }
 
+func (c *client) setXPathValues(actions []action) (err error) {
+	req := newMultiXPathRequest(&c.authData, actions)
+	_, err = req.send()
+	return err
+}
+
 func (c *client) addChildXPathValue(xpath string, value interface{}) (result int, err error) {
 	req := newXPathRequest(&c.authData, xpath, methodAddChild, value)
 	resp, err := req.send()

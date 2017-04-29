@@ -1,21 +1,27 @@
 package homehub
 
+import (
+	"reflect"
+	"strconv"
+	"strings"
+)
+
 // NatRule represents a Home Hub NAT port forwarding rule
 type NatRule struct {
 	UID                   int    `json:"uid"`
-	Enabled               bool   `json:"Enable"`
+	Enable                bool   `json:"Enable"`
 	Alias                 string `json:"Alias"`
-	externalInterface     string `json:"ExternalInterface"`
+	ExternalInterface     string `json:"ExternalInterface"`
 	AllExternalInterfaces bool   `json:"AllExternalInterfaces"`
 	LeaseDuration         int    `json:"LeaseDuration"`
-	RemoteHostIP          string `json:"RemoteHost"`
+	RemoteHost            string `json:"RemoteHost"`
 	ExternalPort          int    `json:"ExternalPort"`
 	ExternalPortEndRange  int    `json:"ExternalPortEndRange"`
-	internalInterface     string `json:"InternalInterface"`
+	InternalInterface     string `json:"InternalInterface"`
 	InternalPort          int    `json:"InternalPort"`
 	Protocol              string `json:"Protocol"`
 	Service               string `json:"Service"`
-	InternalClientIP      string `json:"InternalClient"`
+	InternalClient        string `json:"InternalClient"`
 	Description           string `json:"Description"`
 	Creator               string `json:"Creator"`
 	Target                string `json:"Target"`
@@ -24,4 +30,32 @@ type NatRule struct {
 
 type portMapping struct {
 	NatRule `json:"PortMapping,omitempty"`
+}
+
+func (n *NatRule) getUpdateActions() []action {
+	var actions []action
+	r := reflect.TypeOf(n).Elem()
+	v := reflect.ValueOf(n).Elem()
+	uid := v.FieldByName("UID").Int()
+
+	id := 0
+	for i := 0; i < v.NumField(); i++ {
+		if r.Field(i).Name != "UID" &&
+			r.Field(i).Name != "Creator" &&
+			r.Field(i).Name != "Target" &&
+			r.Field(i).Name != "LeaseStart" {
+			action := action{
+				ID:     id,
+				Method: methodSetValue,
+				XPath:  strings.Replace(accessControlPortForwardingUID, "#", strconv.Itoa(int(uid)), 1) + "/" + r.Field(i).Name,
+				Parameters: &parameters{
+					Value: v.Field(i).Interface(),
+				},
+			}
+			actions = append(actions, action)
+			id++
+		}
+	}
+
+	return actions
 }
