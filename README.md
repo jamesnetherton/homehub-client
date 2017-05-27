@@ -5,6 +5,8 @@ to see the firmware versions supported by each release. The master branch is cur
 
 At present, only a small set of the available [APIs](xpath.go) have been implemented.
 
+If you're looking for a command line implementation of this library, check out my [Home Hub CLI](https://github.com/jamesnetherton/homehub-cli).
+
 ## Usage
 
 ```golang
