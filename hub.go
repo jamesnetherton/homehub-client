@@ -276,7 +276,7 @@ func (h *Hub) PublicSubnetMask() (result string, err error) {
 	return h.client.getXPathValueString(mySagemcomBoxDeviceInfoPublicSubnetMask)
 }
 
-// Reboot restarts router serial number
+// Reboot restarts the router
 func (h *Hub) Reboot() (err error) {
 	return h.client.doReboot()
 }
