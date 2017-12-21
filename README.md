@@ -1,7 +1,7 @@
 # Home Hub Client
 
 A golang client that can interact with BT Home Hub routers. Refer to the [compatibility matrix](matrix.md)
-to see the firmware versions supported by each release. The master branch is currently proven against firmware version `SG4B10002244`.
+to see the firmware versions supported by each release. The master branch is currently proven against firmware version `SG4B1000B316`.
 
 At present, only a small set of the available [APIs](xpath.go) have been implemented.
 
