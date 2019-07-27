@@ -11,6 +11,8 @@ import (
 	"regexp"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 type apiTest struct {
@@ -200,45 +202,16 @@ func TestBandwidthMonitor(t *testing.T) {
 
 	res, err := hub.BandwidthMonitor()
 
-	if err != nil {
-		t.Fatalf("Error returned from BandwidthMonitor %s", err.Error())
-	}
-
-	if len(res.Entries) != 2 {
-		t.Fatalf("Expected 2 bandwidth log entries but got %d", len(res.Entries))
-	}
-
-	if res.Entries[0].MACAddress != "a0:b1:c2:d3:e4:f5" {
-		t.Fatalf("Expected bandwidth log entry 1 timestamp a0:b1:c2:d3:e4:f5 but got %s", res.Entries[0].MACAddress)
-	}
-
-	if res.Entries[0].Date != "2016-12-30" {
-		t.Fatalf("Expected bandwidth log entry 1 date 2016-12-30 but got %s", res.Entries[0].Date)
-	}
-
-	if res.Entries[0].DownloadMegabytes != 10959 {
-		t.Fatalf("Expected bandwidth log entry 1 download megabytes 10959 but got %d", res.Entries[0].DownloadMegabytes)
-	}
-
-	if res.Entries[0].UploadMegabytes != 1301 {
-		t.Fatalf("Expected bandwidth log entry 1 upload megabytes 1301 but got %d", res.Entries[0].UploadMegabytes)
-	}
-
-	if res.Entries[1].MACAddress != "a1:b9:c8:d7:e6:f5" {
-		t.Fatalf("Expected bandwidth log entry 2 timestamp a1:b9:c8:d7:e6:f5 but got %s", res.Entries[1].MACAddress)
-	}
-
-	if res.Entries[1].Date != "2016-12-31" {
-		t.Fatalf("Expected bandwidth log entry 2 date 2016-12-31 but got %s", res.Entries[1].Date)
-	}
-
-	if res.Entries[1].DownloadMegabytes != 218 {
-		t.Fatalf("Expected bandwidth log entry 2 download megabytes 218 but got %d", res.Entries[1].DownloadMegabytes)
-	}
-
-	if res.Entries[1].UploadMegabytes != 30 {
-		t.Fatalf("Expected bandwidth log entry 2 upload megabytes ,30 but got %d", res.Entries[1].UploadMegabytes)
-	}
+	assert.Nil(t, err)
+	assert.Len(t, res.Entries, 2)
+	assert.Equal(t, "a0:b1:c2:d3:e4:f5", res.Entries[0].MACAddress)
+	assert.Equal(t, "2016-12-30", res.Entries[0].Date)
+	assert.Equal(t, 10959, res.Entries[0].DownloadMegabytes)
+	assert.Equal(t, 1301, res.Entries[0].UploadMegabytes)
+	assert.Equal(t, "a1:b9:c8:d7:e6:f5", res.Entries[1].MACAddress)
+	assert.Equal(t, "2016-12-31", res.Entries[1].Date)
+	assert.Equal(t, 218, res.Entries[1].DownloadMegabytes)
+	assert.Equal(t, 30, res.Entries[1].UploadMegabytes)
 }
 
 func TestBroadbandProductType(t *testing.T) {
@@ -256,37 +229,11 @@ func TestConnectedDevices(t *testing.T) {
 
 	res, err := hub.ConnectedDevices()
 
-	if err != nil {
-		t.Fatalf("Error returned from ConnectedDevices %s", err.Error())
-	}
-
-	if len(res) != 2 {
-		t.Fatalf("Expected %d connected devices but got %d", 2, len(res))
-	}
-
-	if res[0].HostName != "foo.bar" {
-		t.Fatalf("Expected device 1 to have host name foo.bar but got %s", res[0].HostName)
-	}
-
-	if len(res[0].IPv4Addresses) != 1 {
-		t.Fatalf("Expected device 1 to have %d IPV4 addresses but got %d", 1, len(res[0].IPv4Addresses))
-	}
-
-	if len(res[0].IPv6Addresses) != 0 {
-		t.Fatalf("Expected device 1 to have %d IPV6 addresses but got %d", 0, len(res[0].IPv6Addresses))
-	}
-
-	if res[1].HostName != "foo.bar.cheese" {
-		t.Fatalf("Expected device 2 to have host name foo.bar but got %s", res[1].HostName)
-	}
-
-	if len(res[1].IPv4Addresses) != 1 {
-		t.Fatalf("Expected device 2 to have %d IPV4 addresses but got %d", 1, len(res[1].IPv4Addresses))
-	}
-
-	if len(res[1].IPv6Addresses) != 0 {
-		t.Fatalf("Expected device 2 to have %d IPV6 addresses but got %d", 0, len(res[1].IPv6Addresses))
-	}
+	assert.Nil(t, err)
+	assert.Len(t, res, 2)
+	assert.Equal(t, "foo.bar", res[0].HostName)
+	assert.Len(t, res[0].IPv4Addresses, 1)
+	assert.Len(t, res[0].IPv6Addresses, 0)
 }
 
 func TestDataPumpVersion(t *testing.T) {
@@ -322,21 +269,10 @@ func TestDeviceInfo(t *testing.T) {
 
 	res, err := hub.DeviceInfo(2)
 
-	if err != nil {
-		t.Fatalf("Error returned from DeviceInfo %s", err.Error())
-	}
-
-	if res.HostName != "foo.bar" {
-		t.Fatalf("Expected device to have host name foo.bar but got %s", res.HostName)
-	}
-
-	if len(res.IPv4Addresses) != 1 {
-		t.Fatalf("Expected device to have %d IPV4 addresses but got %d", 1, len(res.IPv4Addresses))
-	}
-
-	if len(res.IPv6Addresses) != 0 {
-		t.Fatalf("Expected device to have %d IPV6 addresses but got %d", 0, len(res.IPv6Addresses))
-	}
+	assert.Nil(t, err)
+	assert.Equal(t, "foo.bar", res.HostName)
+	assert.Len(t, res.IPv4Addresses, 1)
+	assert.Len(t, res.IPv6Addresses, 0)
 }
 
 func TestDhcpAuthoritative(t *testing.T) {
@@ -389,23 +325,13 @@ func TestDownstreamSyncSpeedSg4b1a(t *testing.T) {
 
 	loggedIn, err := hub.Login()
 
-	if err != nil {
-		t.Error(err)
-	}
-
-	if !loggedIn {
-		t.Errorf("Expected login to be successful")
-	}
+	assert.Nil(t, err)
+	assert.True(t, loggedIn)
 
 	downstreamRate, err := hub.DownstreamSyncSpeed()
 
-	if err != nil {
-		t.Error(err)
-	}
-
-	if downstreamRate != 317796 {
-		t.Fatalf("Expected downstream rate to be 317796 but was %d", downstreamRate)
-	}
+	assert.Nil(t, err)
+	assert.Equal(t, 317796, downstreamRate)
 }
 
 func TestEventLog(t *testing.T) {
@@ -414,45 +340,16 @@ func TestEventLog(t *testing.T) {
 
 	res, err := hub.EventLog()
 
-	if err != nil {
-		t.Fatalf("Error returned from EventLog %s", err.Error())
-	}
-
-	if len(res.Entries) != 2 {
-		t.Fatalf("Expected 2 log entries but got %d", len(res.Entries))
-	}
-
-	if res.Entries[0].Timestamp != "01.03.2017 01:11:11" {
-		t.Fatalf("Expected log entry 1 timestamp 01.03.2017 01:11:11 but got %s", res.Entries[0].Timestamp)
-	}
-
-	if res.Entries[0].Type != "INF" {
-		t.Fatalf("Expected log entry 1 type INF but got %s", res.Entries[0].Type)
-	}
-
-	if res.Entries[0].Category != "WIFI" {
-		t.Fatalf("Expected category entry 1 type WIFI but got %s", res.Entries[0].Category)
-	}
-
-	if res.Entries[0].Message != "Test log message 1" {
-		t.Fatalf("Expected category entry 1 message 'Test log message 1' but got %s", res.Entries[0].Message)
-	}
-
-	if res.Entries[1].Timestamp != "02.03.2017 02:22:22" {
-		t.Fatalf("Expected log entry 2 timestamp 02.03.2017 02:22:22 but got %s", res.Entries[1].Timestamp)
-	}
-
-	if res.Entries[1].Type != "WRN" {
-		t.Fatalf("Expected log entry 2 type WRN but got %s", res.Entries[1].Type)
-	}
-
-	if res.Entries[1].Category != "TR69" {
-		t.Fatalf("Expected category entry 2 type TR69 but got %s", res.Entries[1].Category)
-	}
-
-	if res.Entries[1].Message != "ppp1:TR69 ConnectionRequest: processing request from ACS" {
-		t.Fatalf("Expected category entry 2 message 'ppp1:TR69 ConnectionRequest: processing request from ACS' but got %s", res.Entries[1].Message)
-	}
+	assert.Nil(t, err)
+	assert.Len(t, res.Entries, 2)
+	assert.Equal(t, "01.03.2017 01:11:11", res.Entries[0].Timestamp)
+	assert.Equal(t, "INF", res.Entries[0].Type)
+	assert.Equal(t, "WIFI", res.Entries[0].Category)
+	assert.Equal(t, "Test log message 1", res.Entries[0].Message)
+	assert.Equal(t, "02.03.2017 02:22:22", res.Entries[1].Timestamp)
+	assert.Equal(t, "WRN", res.Entries[1].Type)
+	assert.Equal(t, "TR69", res.Entries[1].Category)
+	assert.Equal(t, "ppp1:TR69 ConnectionRequest: processing request from ACS", res.Entries[1].Message)
 }
 
 func TestHardwareVersion(t *testing.T) {
@@ -517,13 +414,8 @@ func TestLoginSuccess(t *testing.T) {
 
 	loggedIn, err := hub.Login()
 
-	if err != nil {
-		t.Error(err)
-	}
-
-	if !loggedIn {
-		t.Errorf("Expected login to be successful")
-	}
+	assert.Nil(t, err)
+	assert.True(t, loggedIn)
 }
 
 func TestLocalTime(t *testing.T) {
@@ -550,77 +442,24 @@ func TestNatRules(t *testing.T) {
 
 	res, err := hub.NatRules()
 
-	if err != nil {
-		t.Fatalf("Error returned from NatRules %s", err.Error())
-	}
-
-	if len(res) != 1 {
-		t.Fatalf("Expected 1 NAT rule but got %d", len(res))
-	}
-
-	if res[0].Alias != "awesome-nat-rule-alias" {
-		t.Fatalf("Expected NAT rule alias awesome-nat-rule-alias but got %s", res[0].Alias)
-	}
-
-	if res[0].AllExternalInterfaces != false {
-		t.Fatalf("Expected NAT rule AllExternalInterfaces false but got %v", res[0].AllExternalInterfaces)
-	}
-
-	if res[0].Creator != "HUB_TESTER" {
-		t.Fatalf("Expected NAT rule creator HUB_TESTER but got %s", res[0].Creator)
-	}
-
-	if res[0].Description != "Test NAT Rule description" {
-		t.Fatalf("Expected NAT rule description Test NAT Rule description but got %s", res[0].Description)
-	}
-
-	if res[0].Enable != true {
-		t.Fatalf("Expected NAT rule enable true but got %v", res[0].Enable)
-	}
-
-	if res[0].ExternalPort != 1111 {
-		t.Fatalf("Expected NAT rule external port 1111 but got %d", res[0].ExternalPort)
-	}
-
-	if res[0].ExternalPortEndRange != 0 {
-		t.Fatalf("Expected NAT rule external port end range 0 but got %d", res[0].ExternalPortEndRange)
-	}
-
-	if res[0].InternalClient != "192.168.1.68" {
-		t.Fatalf("Expected NAT rule client IP 192.168.1.68 but got %s", res[0].InternalClient)
-	}
-
-	if res[0].InternalPort != 2222 {
-		t.Fatalf("Expected NAT rule internal port 2222 but got %d", res[0].InternalPort)
-	}
-
-	if res[0].LeaseDuration != 60 {
-		t.Fatalf("Expected NAT rule lease duration 60 but got %d", res[0].LeaseDuration)
-	}
-
-	if res[0].LeaseStart != "2016-08-30T19:48:55+0100" {
-		t.Fatalf("Expected NAT rule lease start 2016-08-30T19:48:55+0100 but got %s", res[0].LeaseStart)
-	}
-
-	if res[0].Protocol != "TCP" {
-		t.Fatalf("Expected NAT rule protocol TCP but got %s", res[0].Protocol)
-	}
-
-	if res[0].RemoteHost != "192.168.1.68" {
-		t.Fatalf("Expected NAT rule remote host ip 192.168.1.68 but got %s", res[0].RemoteHost)
-	}
-
-	if res[0].Service != "TEST_SERVICE" {
-		t.Fatalf("Expected NAT rule servie TEST_SERVICE but got %s", res[0].Service)
-	}
-
-	if res[0].Target != "ACCEPT" {
-		t.Fatalf("Expected NAT rule target ACCEPT but got %s", res[0].Target)
-	}
-
-	if res[0].UID != 1 {
-		t.Fatalf("Expected NAT rule type UID 1 but got %d", res[0].UID)
-	}
+	assert.Nil(t, err)
+	assert.Len(t, res, 1)
+	assert.Equal(t, "awesome-nat-rule-alias", res[0].Alias)
+	assert.False(t, res[0].AllExternalInterfaces)
+	assert.Equal(t, "HUB_TESTER", res[0].Creator)
+	assert.Equal(t, "Test NAT Rule description", res[0].Description)
+	assert.True(t, res[0].Enable)
+	assert.Equal(t, 1111, res[0].ExternalPort)
+	assert.Equal(t, 0, res[0].ExternalPortEndRange)
+	assert.Equal(t, "192.168.1.68", res[0].InternalClient)
+	assert.Equal(t, 2222, res[0].InternalPort)
+	assert.Equal(t, 60, res[0].LeaseDuration)
+	assert.Equal(t, "2016-08-30T19:48:55+0100", res[0].LeaseStart)
+	assert.Equal(t, "TCP", res[0].Protocol)
+	assert.Equal(t, "192.168.1.68", res[0].RemoteHost)
+	assert.Equal(t, "TEST_SERVICE", res[0].Service)
+	assert.Equal(t, "ACCEPT", res[0].Target)
+	assert.Equal(t, 1, res[0].UID)
 }
 
 func TestNatRule(t *testing.T) {
@@ -629,73 +468,23 @@ func TestNatRule(t *testing.T) {
 
 	natRule, err := hub.NatRule(1)
 
-	if err != nil {
-		t.Fatalf("Error returned from NatRule %s", err.Error())
-	}
-
-	if natRule.Alias != "awesome-nat-rule-alias" {
-		t.Fatalf("Expected NAT rule alias awesome-nat-rule-alias but got %s", natRule.Alias)
-	}
-
-	if natRule.AllExternalInterfaces != false {
-		t.Fatalf("Expected NAT rule AllExternalInterfaces false but got %v", natRule.AllExternalInterfaces)
-	}
-
-	if natRule.Creator != "HUB_TESTER" {
-		t.Fatalf("Expected NAT rule creator HUB_TESTER but got %s", natRule.Creator)
-	}
-
-	if natRule.Description != "Test NAT Rule description" {
-		t.Fatalf("Expected NAT rule description Test NAT Rule description but got %s", natRule.Description)
-	}
-
-	if natRule.Enable != true {
-		t.Fatalf("Expected NAT rule enable true but got %v", natRule.Enable)
-	}
-
-	if natRule.ExternalPort != 1111 {
-		t.Fatalf("Expected NAT rule external port 1111 but got %d", natRule.ExternalPort)
-	}
-
-	if natRule.ExternalPortEndRange != 0 {
-		t.Fatalf("Expected NAT rule external port end range 0 but got %d", natRule.ExternalPortEndRange)
-	}
-
-	if natRule.InternalClient != "192.168.1.68" {
-		t.Fatalf("Expected NAT rule client IP 192.168.1.68 but got %s", natRule.InternalClient)
-	}
-
-	if natRule.InternalPort != 2222 {
-		t.Fatalf("Expected NAT rule internal port 2222 but got %d", natRule.InternalPort)
-	}
-
-	if natRule.LeaseDuration != 60 {
-		t.Fatalf("Expected NAT rule lease duration 60 but got %d", natRule.LeaseDuration)
-	}
-
-	if natRule.LeaseStart != "2016-08-30T19:48:55+0100" {
-		t.Fatalf("Expected NAT rule lease start 2016-08-30T19:48:55+0100 but got %s", natRule.LeaseStart)
-	}
-
-	if natRule.Protocol != "TCP" {
-		t.Fatalf("Expected NAT rule protocol TCP but got %s", natRule.Protocol)
-	}
-
-	if natRule.RemoteHost != "192.168.1.68" {
-		t.Fatalf("Expected NAT rule remote host ip 192.168.1.68 but got %s", natRule.RemoteHost)
-	}
-
-	if natRule.Service != "TEST_SERVICE" {
-		t.Fatalf("Expected NAT rule servie TEST_SERVICE but got %s", natRule.Service)
-	}
-
-	if natRule.Target != "ACCEPT" {
-		t.Fatalf("Expected NAT rule target ACCEPT but got %s", natRule.Target)
-	}
-
-	if natRule.UID != 1 {
-		t.Fatalf("Expected NAT rule type UID 1 but got %d", natRule.UID)
-	}
+	assert.Nil(t, err)
+	assert.Equal(t, "awesome-nat-rule-alias", natRule.Alias)
+	assert.False(t, natRule.AllExternalInterfaces)
+	assert.Equal(t, "HUB_TESTER", natRule.Creator)
+	assert.Equal(t, "Test NAT Rule description", natRule.Description)
+	assert.True(t, natRule.Enable)
+	assert.Equal(t, 1111, natRule.ExternalPort)
+	assert.Equal(t, 0, natRule.ExternalPortEndRange)
+	assert.Equal(t, "192.168.1.68", natRule.InternalClient)
+	assert.Equal(t, 2222, natRule.InternalPort)
+	assert.Equal(t, 60, natRule.LeaseDuration)
+	assert.Equal(t, "2016-08-30T19:48:55+0100", natRule.LeaseStart)
+	assert.Equal(t, "TCP", natRule.Protocol)
+	assert.Equal(t, "192.168.1.68", natRule.RemoteHost)
+	assert.Equal(t, "TEST_SERVICE", natRule.Service)
+	assert.Equal(t, "ACCEPT", natRule.Target)
+	assert.Equal(t, 1, natRule.UID)
 }
 
 func TestNatRuleCreate(t *testing.T) {
@@ -724,13 +513,8 @@ func TestNatRuleCreate(t *testing.T) {
 
 	err := hub.NatRuleCreate(natRule)
 
-	if err != nil {
-		t.Fatalf("Error returned from NatRuleCreate %s", err.Error())
-	}
-
-	if natRule.UID != 14 {
-		t.Fatalf("Expected NAT rule UID 13 but was %d", natRule.UID)
-	}
+	assert.Nil(t, err)
+	assert.Equal(t, 14, natRule.UID)
 }
 
 func TestNatRuleDelete(t *testing.T) {
@@ -864,23 +648,13 @@ func TestUpstreamSyncSpeedSg4b1a(t *testing.T) {
 
 	loggedIn, err := hub.Login()
 
-	if err != nil {
-		t.Error(err)
-	}
-
-	if !loggedIn {
-		t.Errorf("Expected login to be successful")
-	}
+	assert.Nil(t, err)
+	assert.True(t, loggedIn)
 
 	upstreamRate, err := hub.UpstreamSyncSpeed()
 
-	if err != nil {
-		t.Error(err)
-	}
-
-	if upstreamRate != 52121 {
-		t.Fatalf("Expected upstream rate to be 52121 but was %d", upstreamRate)
-	}
+	assert.Nil(t, err)
+	assert.Equal(t, 52121, upstreamRate)
 }
 
 func TestVersion(t *testing.T) {
@@ -898,41 +672,14 @@ func TestWiFiFrequency24Ghz(t *testing.T) {
 
 	frequency, err := hub.WiFiFrequency24Ghz()
 
-	if err != nil {
-		t.Fatalf("Error returned from WiFiFrequency24Ghz %s", err.Error())
-	}
-
-	if frequency.Alias != "RADIO2G4" {
-		t.Fatalf("Expected frequency alias RADIO2G4 but got %s", frequency.Alias)
-	}
-
-	if frequency.AvailableChannels != "1,2,3,4,5" {
-		t.Fatalf("Expected frequency available channels b,g,n but got %s", frequency.AvailableChannels)
-	}
-
-	if frequency.Channel != 1 {
-		t.Fatalf("Expected frequency channel 1 but got %d", frequency.Channel)
-	}
-
-	if frequency.Enable != true {
-		t.Fatalf("Expected frequency enable true but got %t", frequency.Enable)
-	}
-
-	if frequency.OperatingStandards != "b,g,n" {
-		t.Fatalf("Expected frequency operating standards b,g,n but got %s", frequency.OperatingStandards)
-	}
-
-	if frequency.SupportedStandards != "b,g,n" {
-		t.Fatalf("Expected frequency supported standards b,g,n but got %s", frequency.SupportedStandards)
-	}
-
-	if frequency.Status != "UP" {
-		t.Fatalf("Expected frequency status UP but got %s", frequency.Status)
-	}
-
-	if frequency.UID != 1 {
-		t.Fatalf("Expected frequency UID 1 but got %d", frequency.UID)
-	}
+	assert.Nil(t, err)
+	assert.Equal(t, "RADIO2G4", frequency.Alias)
+	assert.Equal(t, "1,2,3,4,5", frequency.AvailableChannels)
+	assert.Equal(t, 1, frequency.Channel)
+	assert.True(t, frequency.Enable)
+	assert.Equal(t, "b,g,n", frequency.OperatingStandards)
+	assert.Equal(t, "UP", frequency.Status)
+	assert.Equal(t, 1, frequency.UID)
 }
 
 func TestWiFiFrequency24GhzChannelSet(t *testing.T) {
@@ -951,41 +698,15 @@ func TestWiFiFrequency5Ghz(t *testing.T) {
 
 	frequency, err := hub.WiFiFrequency5Ghz()
 
-	if err != nil {
-		t.Fatalf("Error returned from WiFiFrequency5Ghz %s", err.Error())
-	}
-
-	if frequency.Alias != "RADIO5G" {
-		t.Fatalf("Expected frequency alias RADIO5G but got %s", frequency.Alias)
-	}
-
-	if frequency.AvailableChannels != "1,2,3,4,5" {
-		t.Fatalf("Expected frequency available channels b,g,n but got %s", frequency.AvailableChannels)
-	}
-
-	if frequency.Channel != 1 {
-		t.Fatalf("Expected frequency channel 1 but got %d", frequency.Channel)
-	}
-
-	if frequency.Enable != true {
-		t.Fatalf("Expected frequency enable true but got %t", frequency.Enable)
-	}
-
-	if frequency.OperatingStandards != "a,n,ac" {
-		t.Fatalf("Expected frequency operating standards a,n,ac but got %s", frequency.OperatingStandards)
-	}
-
-	if frequency.SupportedStandards != "a,n,ac" {
-		t.Fatalf("Expected frequency supported standards a,n,ac but got %s", frequency.SupportedStandards)
-	}
-
-	if frequency.Status != "UP" {
-		t.Fatalf("Expected frequency status UP but got %s", frequency.Status)
-	}
-
-	if frequency.UID != 1 {
-		t.Fatalf("Expected frequency UID 1 but got %d", frequency.UID)
-	}
+	assert.Nil(t, err)
+	assert.Equal(t, "RADIO5G", frequency.Alias)
+	assert.Equal(t, "1,2,3,4,5", frequency.AvailableChannels)
+	assert.Equal(t, 1, frequency.Channel)
+	assert.True(t, frequency.Enable)
+	assert.Equal(t, "a,n,ac", frequency.OperatingStandards)
+	assert.Equal(t, "a,n,ac", frequency.SupportedStandards)
+	assert.Equal(t, "UP", frequency.Status)
+	assert.Equal(t, 1, frequency.UID)
 }
 
 func TestWiFiFrequency5GhzChannelSet(t *testing.T) {
