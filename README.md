@@ -1,6 +1,6 @@
 # Home Hub Client
 
-[![CircleCI](https://img.shields.io/circleci/project/github/jamesnetherton/homehub-client/master.svg)](https://circleci.com/gh/jamesnetherton/homehub-client/tree/master)
+![Build](https://github.com/jamesnetherton/homehub-client/workflows/Build/badge.svg?event=push)
 [![license](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=600)](https://opensource.org/licenses/MIT)
 
 A golang client that can interact with BT Home Hub routers. Refer to the [compatibility matrix](matrix.md)
@@ -8,7 +8,7 @@ to see the firmware versions supported by each release. The master branch is cur
 
 At present, only a small set of the available [APIs](xpath.go) have been implemented.
 
-If you're looking for a command line implementation of this library, check out my [Home Hub CLI](https://github.com/jamesnetherton/homehub-cli).
+If you're looking for a command line implementation of this library, check out my [Home Hub CLI](https://github.com/jamesnetherton/homehub-cli). There's also a [Prometheus exporter](https://github.com/jamesnetherton/homehub-metrics-exporter) that's loosely based on this client code.
 
 ## Usage
 
